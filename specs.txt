@@ -1,0 +1,80 @@
+# Specifiche CRM per Centro Estetico
+
+## Panoramica
+Un sistema CRM completo per centri estetici, sviluppato con Vue.js (frontend), Node.js (backend) e MongoDB (database), containerizzato con Docker per facilitare deployment e sviluppo.
+
+## Funzionalità Principali
+
+### Gestione Clienti
+- Anagrafica clienti (dati personali, contatti, foto)
+- Storico trattamenti e acquisti
+- Preferenze e note personali
+- Gestione consensi privacy e marketing
+- Classificazione clienti (nuovi, fedeli, inattivi)
+
+### Agenda e Appuntamenti
+- Calendario con vista giornaliera/settimanale/mensile
+- Gestione appuntamenti con durata variabile
+- Notifiche e reminder automatici (email/SMS)
+- Prenotazione online per i clienti
+- Gestione operatori e sale
+
+### Trattamenti e Servizi
+- Catalogo servizi con prezzi e durate
+- Pacchetti e abbonamenti
+- Gestione promozioni e sconti
+- Tempi di recupero tra trattamenti
+
+### Gestione Finanziaria
+- Fatturazione semplificata
+- Registrazione pagamenti
+- Reportistica su incassi e performance
+- Gestione pacchetti prepagati e crediti cliente
+
+### Marketing
+- Campagne promozionali
+- Email marketing integrato
+- Compleanni e occasioni speciali automatizzate
+- Programma fedeltà e punti
+
+### Reportistica
+- Dashboard con KPI principali
+- Report personalizzabili
+- Statistiche su servizi più richiesti
+- Analisi conversione e retention clienti
+
+## Architettura Tecnica
+
+### Frontend (Vue.js)
+- Vue 3 con Composition API
+- Vuex per la gestione dello stato
+- Vue Router per la navigazione
+- Tailwind CSS per l'interfaccia utente
+- Autenticazione JWT
+- Responsive design per tutti i dispositivi
+
+### Backend (Node.js)
+- Express.js come framework
+- API RESTful
+- Autenticazione e autorizzazione
+- Middleware per logging e sicurezza
+- Upload file e gestione immagini
+- Integrazione con servizi esterni (SMS, email)
+
+### Database (MongoDB)
+- Schema flessibile per i dati
+- Indici ottimizzati per performance
+- Backup automatizzati
+
+### Docker
+- Container separati per frontend, backend e database
+- Docker Compose per orchestrazione
+- Volumi persistenti per i dati
+- Configurazione environment-based
+
+## Requisiti Non Funzionali
+- Supporto multilingua (italiano principale)
+- Backup regolari automatici
+- Performance ottimizzate
+- Sicurezza e protezione dati personali (GDPR)
+- Interfaccia intuitiva per operatori non tecnici

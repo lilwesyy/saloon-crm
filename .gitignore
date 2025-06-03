@@ -1,0 +1,45 @@
+# Node.js
+node_modules/
+npm-debug.log
+yarn-error.log
+yarn-debug.log
+.pnpm-debug.log
+
+# Ambiente
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Editor
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+
+# Build
+dist/
+build/
+coverage/
+
+# Docker
+.docker/
+
+# MongoDB
+data/db/
+
+# Logs
+logs/
+*.log
+
+# Uploads
+uploads/
+
+# Cache
+.cache/
+.eslintcache

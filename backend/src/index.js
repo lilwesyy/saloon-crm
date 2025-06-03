@@ -1,0 +1,64 @@
+const express = require('express');
+const mongoose = require('mongoose');
+const cors = require('cors');
+const morgan = require('morgan');
+const dotenv = require('dotenv');
+const path = require('path');
+
+// Caricamento variabili d'ambiente
+dotenv.config();
+
+// Importazione delle routes
+const authRoutes = require('./routes/auth.routes');
+const clientiRoutes = require('./routes/clienti.routes');
+const appuntamentiRoutes = require('./routes/appuntamenti.routes');
+const serviziRoutes = require('./routes/servizi.routes');
+const pagamentiRoutes = require('./routes/pagamenti.routes');
+
+// Inizializzazione dell'app Express
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+// Middleware
+app.use(cors());
+app.use(morgan('dev'));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+
+// Connessione al database
+mongoose
+  .connect(process.env.MONGO_URI || 'mongodb://mongo:27017/esteticacrm', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+  })
+  .then(() => console.log('Connessione a MongoDB stabilita'))
+  .catch((err) => console.error('Errore di connessione a MongoDB:', err));
+
+// Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/clienti', clientiRoutes);
+app.use('/api/appuntamenti', appuntamentiRoutes);
+app.use('/api/servizi', serviziRoutes);
+app.use('/api/pagamenti', pagamentiRoutes);
+
+// Route base
+app.get('/api', (req, res) => {
+  res.json({ message: 'API CRM Centro Estetico' });
+});
+
+// Gestione errori
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({
+    message: 'Si è verificato un errore',
+    error: process.env.NODE_ENV === 'development' ? err : {}
+  });
+});
+
+// Avvio del server
+app.listen(PORT, () => {
+  console.log(`Server avviato sulla porta ${PORT}`);
+});
+
+module.exports = app;

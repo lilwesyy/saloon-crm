@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  # Frontend - Vue.js
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: ../docker/frontend.Dockerfile
+    ports:
+      - "8080:80"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - VUE_APP_API_URL=http://localhost:3000/api
+    depends_on:
+      - backend
+
+  # Backend - Node.js
+  backend:
+    build:
+      context: ./backend
+      dockerfile: ../docker/backend.Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - MONGO_URI=mongodb://mongo:27017/esteticacrm
+      - JWT_SECRET=your_jwt_secret_key_change_in_production
+    depends_on:
+      - mongo
+    command: npm run dev
+
+  # Database - MongoDB
+  mongo:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    environment:
+      - MONGO_INITDB_DATABASE=esteticacrm
+
+volumes:
+  mongo_data:
