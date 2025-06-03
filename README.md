@@ -9,6 +9,51 @@ Un sistema completo di CRM (Customer Relationship Management) per centri estetic
 - **Database**: MongoDB
 - **Containerizzazione**: Docker e Docker Compose
 
+## 🚀 Avvio Rapido
+
+Per avviare l'intero ambiente di sviluppo:
+
+```bash
+docker compose up -d
+```
+
+## 🌐 Servizi Disponibili
+
+- **Frontend Vue.js**: http://localhost:8080
+- **Backend API**: http://localhost:3000  
+- **MongoDB**: localhost:27017
+
+## 📋 Comandi Docker Utili
+
+```bash
+# Avvia tutti i servizi
+docker compose up -d
+
+# Visualizza i log
+docker compose logs -f
+
+# Visualizza i log di un singolo servizio
+docker compose logs -f backend
+docker compose logs -f frontend
+docker compose logs -f mongodb
+
+# Ferma tutti i servizi
+docker compose down
+
+# Riavvia un singolo servizio
+docker compose restart backend
+
+# Ricostruisci e riavvia (dopo modifiche ai Dockerfile)
+docker compose up -d --build
+```
+
+## 💻 Sviluppo
+
+- Il codice è montato come volume, quindi le modifiche sono automaticamente rilevate
+- Il backend usa `nodemon` per il reload automatico
+- Il frontend usa il dev server di Vue CLI con hot reload
+- Il database persiste i dati nella cartella `./data/mongo`
+
 ## Funzionalità Principali
 
 - Gestione completa dei clienti
@@ -31,7 +76,7 @@ Un sistema completo di CRM (Customer Relationship Management) per centri estetic
 1. Clona il repository:
    ```bash
    git clone [url-repository]
-   cd freelancecrm
+   cd saloon-crm
    ```
 
 2. Avvia i container Docker:
@@ -39,9 +84,19 @@ Un sistema completo di CRM (Customer Relationship Management) per centri estetic
    docker-compose up -d
    ```
 
-3. L'applicazione sarà disponibile all'indirizzo:
+3. Crea l'utente amministratore (solo al primo avvio):
+   ```bash
+   docker-compose exec backend npm run create-admin
+   ```
+
+4. L'applicazione sarà disponibile all'indirizzo:
    - Frontend: http://localhost:8080
    - API Backend: http://localhost:3000/api
+
+5. **Credenziali di accesso predefinite:**
+   - Email: `admin@estetica.com`
+   - Password: `admin123`
+   - ⚠️ **IMPORTANTE**: Cambia la password al primo accesso!
 
 ### Installazione Locale per Sviluppo
 

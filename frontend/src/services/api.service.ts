@@ -1,6 +1,6 @@
-import axios from 'axios'
+import axios, { AxiosResponse } from 'axios'
 
-// Crea un'istanza di axios con la configurazione base
+// Create a custom axios instance with proper typing
 const apiClient = axios.create({
   baseURL: process.env.VUE_APP_API_URL || 'http://localhost:3000/api',
   headers: {
@@ -21,7 +21,7 @@ apiClient.interceptors.request.use(config => {
 
 // Interceptor per gestire gli errori di risposta
 apiClient.interceptors.response.use(
-  response => {
+  (response: AxiosResponse): any => {
     return response.data
   }, 
   error => {

@@ -2,15 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import router from '@/router'
 import AuthService from '@/services/auth.service'
-
-export interface User {
-  id: string;
-  nome: string;
-  cognome: string;
-  email: string;
-  ruolo: string;
-  fotoProfilo?: string;
-}
+import { User, LoginResponse } from '@/types/api'
 
 export const useAuthStore = defineStore('auth', () => {
   // State
@@ -33,7 +25,8 @@ export const useAuthStore = defineStore('auth', () => {
     error.value = null
     
     try {
-      const response = await AuthService.login(email, password)
+      const response: LoginResponse = await AuthService.login(email, password)
+      // Now response is properly typed as LoginResponse
       token.value = response.token
       currentUser.value = response.user
       localStorage.setItem('token', response.token)

@@ -118,7 +118,12 @@ router.beforeEach((to, from, next) => {
   
   // Verifica se l'utente è autenticato
   if (to.meta.requiresAuth && !authStore.isLoggedIn) {
-    next({ name: 'Login', query: { redirect: to.fullPath } })
+    // Non aggiungere il redirect se si sta andando alla homepage
+    if (to.path === '/') {
+      next({ name: 'Login' })
+    } else {
+      next({ name: 'Login', query: { redirect: to.fullPath } })
+    }
   } 
   // Verifica se la rotta è riservata agli amministratori
   else if (to.meta.requiresAdmin && !authStore.isAdmin) {
