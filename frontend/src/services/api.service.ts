@@ -27,8 +27,12 @@ apiClient.interceptors.response.use(
   error => {
     // Gestione errore 401 (token scaduto o non valido)
     if (error.response && error.response.status === 401) {
-      localStorage.removeItem('token')
-      window.location.href = '/login'
+      // Non fare redirect automatico per evitare ricaricamenti durante il login
+      if (!window.location.pathname.includes('/login')) {
+        localStorage.removeItem('token')
+        localStorage.removeItem('user')
+        window.location.href = '/login'
+      }
     }
     
     const errorMsg = 
@@ -41,3 +45,50 @@ apiClient.interceptors.response.use(
 )
 
 export default apiClient
+
+// Create namespaced API clients for specific resources
+export const createApiClient = (endpoint: string) => {
+  const client = axios.create({
+    baseURL: `${process.env.VUE_APP_API_URL || 'http://localhost:3000/api'}/${endpoint}`,
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  })
+  
+  // Set up interceptors (define them explicitly instead of trying to copy)
+  client.interceptors.request.use(config => {
+    const token = localStorage.getItem('token')
+    if (token) {
+      config.headers['Authorization'] = `Bearer ${token}`
+    }
+    return config
+  }, error => {
+    return Promise.reject(error)
+  })
+  
+  client.interceptors.response.use(
+    (response: AxiosResponse): any => {
+      return response.data
+    }, 
+    error => {
+      // Gestione errore 401 (token scaduto o non valido)
+      if (error.response && error.response.status === 401) {
+        // Non fare redirect automatico per evitare ricaricamenti durante il login
+        if (!window.location.pathname.includes('/login')) {
+          localStorage.removeItem('token')
+          localStorage.removeItem('user')
+          window.location.href = '/login'
+        }
+      }
+      
+      const errorMsg = 
+        (error.response && error.response.data && error.response.data.message) ||
+        error.message ||
+        'Si è verificato un errore'
+      
+      return Promise.reject(new Error(errorMsg))
+    }
+  )
+  
+  return client
+}

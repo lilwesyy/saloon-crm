@@ -7,6 +7,7 @@ const Login = () => import('@/views/auth/Login.vue')
 const Clienti = () => import('@/views/clienti/ClientiList.vue')
 const ClienteDetail = () => import('@/views/clienti/ClienteDetail.vue')
 const ClienteForm = () => import('@/views/clienti/ClienteForm.vue')
+const ClientiRicerca = () => import('@/views/clienti/ClientiRicerca.vue')
 const Appuntamenti = () => import('@/views/appuntamenti/AppuntamentiCalendar.vue')
 const AppuntamentoForm = () => import('@/views/appuntamenti/AppuntamentoForm.vue')
 const Servizi = () => import('@/views/servizi/ServiziList.vue')
@@ -14,6 +15,16 @@ const ServizioForm = () => import('@/views/servizi/ServizioForm.vue')
 const Pagamenti = () => import('@/views/pagamenti/PagamentiList.vue')
 const Reports = () => import('@/views/reports/Reports.vue')
 const NotFound = () => import('@/views/NotFound.vue')
+
+// Marketing views
+const CampagneList = () => import('@/views/marketing/CampagneList.vue')
+const CampagnaForm = () => import('@/views/marketing/CampagnaForm.vue')
+const CampagnaDetail = () => import('@/views/marketing/CampagnaDetail.vue')
+const ProgrammiFedeltaList = () => import('@/views/marketing/ProgrammiFedeltaList.vue')
+const ProgrammaFedeltaDetail = () => import('@/views/marketing/ProgrammaFedeltaDetail.vue')
+const ProgrammaFedeltaForm = () => import('@/views/marketing/ProgrammaFedeltaForm.vue')
+const FedeltaList = () => import('@/views/marketing/FedeltaList.vue')
+const FedeltaDetail = () => import('@/views/marketing/FedeltaDetail.vue')
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -32,6 +43,12 @@ const routes: Array<RouteRecordRaw> = [
     path: '/clienti',
     name: 'Clienti',
     component: Clienti,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/clienti/ricerca',
+    name: 'RicercaClienti',
+    component: ClientiRicerca,
     meta: { requiresAuth: true }
   },
   {
@@ -93,6 +110,83 @@ const routes: Array<RouteRecordRaw> = [
     name: 'Pagamenti',
     component: Pagamenti,
     meta: { requiresAuth: true }
+  },
+  // Marketing routes
+  {
+    path: '/marketing/campagne',
+    name: 'Campagne',
+    component: CampagneList,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/marketing/campagne/nuova',
+    name: 'NuovaCampagna',
+    component: CampagnaForm,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/marketing/campagne/create',
+    redirect: '/marketing/campagne/nuova'
+  },
+  {
+    path: '/marketing/campagne/:id',
+    name: 'DettaglioCampagna',
+    component: CampagnaDetail,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/marketing/campagne/:id/modifica',
+    name: 'ModificaCampagna',
+    component: CampagnaForm,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/marketing/campagne/:id/edit',
+    redirect: to => `/marketing/campagne/${to.params.id}/modifica`
+  },
+  {
+    path: '/marketing/programmi-fedelta',
+    name: 'ProgrammiFedelta',
+    component: ProgrammiFedeltaList,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/marketing/programmi-fedelta/nuovo',
+    name: 'NuovoProgrammaFedelta',
+    component: ProgrammaFedeltaForm,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/marketing/programmi-fedelta/:id',
+    name: 'DettaglioProgrammaFedelta',
+    component: ProgrammaFedeltaDetail,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/marketing/programmi-fedelta/:id/modifica',
+    name: 'ModificaProgrammaFedelta',
+    component: ProgrammaFedeltaForm,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/marketing/fedelta',
+    name: 'FedeltaList',
+    component: FedeltaList,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/marketing/fedelta/:id',
+    name: 'FedeltaDetail',
+    component: FedeltaDetail,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/marketing/fedelta/create',
+    redirect: '/marketing/programmi-fedelta/nuovo'
+  },
+  {
+    path: '/marketing/fedelta/:id/edit',
+    redirect: to => `/marketing/programmi-fedelta/${to.params.id}/modifica`
   },
   {
     path: '/reports',

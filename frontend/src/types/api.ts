@@ -11,13 +11,15 @@ export interface RegisterResponse {
 }
 
 export interface User {
-  _id: string
+  id: string
   nome: string
   cognome: string
   email: string
-  ruolo: 'admin' | 'operator'
-  createdAt: string
-  updatedAt: string
+  ruolo: 'admin' | 'manager' | 'operatore' | 'receptionist'
+  fotoProfilo?: string
+  telefono?: string
+  createdAt?: string
+  updatedAt?: string
 }
 
 export interface ApiError {

@@ -8,11 +8,17 @@ const uploadMiddleware = require('../middleware/upload.middleware');
 // Proteggere tutte le rotte con autenticazione
 router.use(authMiddleware.verifyToken);
 
-// Rotta per ottenere tutti i clienti
+// Rotta per ottenere tutti i clienti (con supporto paginazione e filtri)
 router.get('/', clientiController.getAll);
 
-// Rotta per cercare clienti
+// Rotta per le statistiche generali sui clienti
+router.get('/statistiche', clientiController.getStatistiche);
+
+// Rotta per ricerca semplice (per compatibilità)
 router.get('/search', clientiController.search);
+
+// Rotta per ricerca avanzata con filtri multipli
+router.get('/search/advanced', clientiController.searchAdvanced);
 
 // Rotta per ottenere un cliente specifico
 router.get('/:id', clientiController.getById);
@@ -23,7 +29,7 @@ router.post(
   [
     body('nome').notEmpty().withMessage('Il nome è obbligatorio'),
     body('cognome').notEmpty().withMessage('Il cognome è obbligatorio'),
-    body('email').isEmail().withMessage('Inserisci un indirizzo email valido'),
+    body('email').optional().isEmail().withMessage('Inserisci un indirizzo email valido'),
     body('telefono').notEmpty().withMessage('Il telefono è obbligatorio')
   ],
   clientiController.create

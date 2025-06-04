@@ -11,7 +11,7 @@ const User = require('../src/models/user.model');
 const createAdminUser = async () => {
   try {
     // Connetti al database
-    await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/esteticacrm', {
+    await mongoose.connect(process.env.MONGO_URI || 'mongodb://mongodb:27017/esteticacrm', {
       useNewUrlParser: true,
       useUnifiedTopology: true
     });

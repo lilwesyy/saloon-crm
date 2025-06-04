@@ -14,6 +14,8 @@ const clientiRoutes = require('./routes/clienti.routes');
 const appuntamentiRoutes = require('./routes/appuntamenti.routes');
 const serviziRoutes = require('./routes/servizi.routes');
 const pagamentiRoutes = require('./routes/pagamenti.routes');
+const campagneRoutes = require('./routes/campagne.routes');
+const programmaFedeltaRoutes = require('./routes/programmaFedelta.routes');
 
 // Inizializzazione dell'app Express
 const app = express();
@@ -28,7 +30,7 @@ app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Connessione al database
 mongoose
-  .connect(process.env.MONGO_URI || 'mongodb://mongo:27017/esteticacrm', {
+  .connect(process.env.MONGO_URI || 'mongodb://mongodb:27017/esteticacrm', {
     useNewUrlParser: true,
     useUnifiedTopology: true
   })
@@ -41,6 +43,8 @@ app.use('/api/clienti', clientiRoutes);
 app.use('/api/appuntamenti', appuntamentiRoutes);
 app.use('/api/servizi', serviziRoutes);
 app.use('/api/pagamenti', pagamentiRoutes);
+app.use('/api/campagne', campagneRoutes);
+app.use('/api/programma-fedelta', programmaFedeltaRoutes);
 
 // Route base
 app.get('/api', (req, res) => {

@@ -8,12 +8,9 @@ module.exports = defineConfig({
     port: 8080,
     host: '0.0.0.0',
     allowedHosts: 'all',
-    client: {
-      webSocketURL: 'ws://localhost:8080/ws'
-    },
     proxy: {
       '/api': {
-        target: 'http://localhost:3000',
+        target: 'http://backend:3000',
         changeOrigin: true
       }
     }

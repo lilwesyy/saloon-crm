@@ -15,10 +15,10 @@
         </p>
       </div>
       
-      <form class="mt-8 space-y-6" @submit.prevent="handleLogin">
-        <div class="rounded-md shadow-sm -space-y-px">
+      <form @submit.prevent="handleLogin" class="mt-8 space-y-6">
+        <div class="space-y-4">
           <div>
-            <label for="email" class="sr-only">Email</label>
+            <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
             <input
               id="email"
               name="email"
@@ -26,12 +26,12 @@
               autocomplete="email"
               required
               v-model="form.email"
-              class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-purple-500 focus:border-purple-500 focus:z-10 sm:text-sm"
+              class="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500 focus:z-10 sm:text-sm"
               placeholder="Indirizzo email"
             />
           </div>
           <div>
-            <label for="password" class="sr-only">Password</label>
+            <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
             <input
               id="password"
               name="password"
@@ -39,7 +39,7 @@
               autocomplete="current-password"
               required
               v-model="form.password"
-              class="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-purple-500 focus:border-purple-500 focus:z-10 sm:text-sm"
+              class="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-purple-500 focus:border-purple-500 focus:z-10 sm:text-sm"
               placeholder="Password"
             />
           </div>
@@ -130,17 +130,38 @@ onMounted(() => {
   }
 })
 
-const handleLogin = async () => {
-  const success = await authStore.login(form.value.email, form.value.password)
+const handleLogin = async (event?: Event) => {
+  // Previeni qualsiasi comportamento predefinito
+  if (event) {
+    event.preventDefault()
+    event.stopPropagation()
+  }
   
-  if (success) {
-    if (form.value.remember) {
-      localStorage.setItem('remember', 'true')
-    }
+  console.log('Tentativo di login con:', { email: form.value.email });
+  
+  // Validazione semplice
+  if (!form.value.email || !form.value.password) {
+    console.log('Email o password mancanti');
+    return;
+  }
+  
+  try {
+    const success = await authStore.login(form.value.email, form.value.password)
     
-    // Reindirizza alla pagina originale o alla dashboard
-    const redirectTo = router.currentRoute.value.query.redirect as string || '/'
-    router.push(redirectTo)
+    if (success) {
+      console.log('Login riuscito, reindirizzamento gestito dallo store');
+      if (form.value.remember) {
+        localStorage.setItem('remember', 'true')
+      }
+      // La navigazione è già gestita dallo store auth nel metodo login()
+    } else {
+      console.log('Login fallito, mostro solo l\'errore senza navigazione');
+      // Non fare nessuna navigazione quando il login fallisce
+      // L'errore è già mostrato tramite authStore.error
+    }
+  } catch (error) {
+    console.error('Errore durante il login:', error)
+    // Non propagare l'errore per evitare ricaricamenti
   }
 }
 </script>

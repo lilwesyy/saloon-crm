@@ -32,7 +32,8 @@
                   Clienti Totali
                 </dt>
                 <dd class="text-lg font-medium text-gray-900">
-                  {{ stats.totalClients }}
+                  <span v-if="isLoading">...</span>
+                  <span v-else>{{ stats.totalClients }}</span>
                 </dd>
               </dl>
             </div>
@@ -62,7 +63,7 @@
                   Appuntamenti Oggi
                 </dt>
                 <dd class="text-lg font-medium text-gray-900">
-                  {{ stats.todayAppointments }}
+                  {{ todayAppointmentsCount }}
                 </dd>
               </dl>
             </div>
@@ -139,7 +140,7 @@
     </div>
 
     <!-- Recent Activities -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">      
       <!-- Recent Appointments -->
       <div class="bg-white shadow rounded-lg">
         <div class="px-4 py-5 sm:p-6">
@@ -235,26 +236,66 @@
         </div>
       </div>
     </div>
+    
+    <!-- Client Stats (moved to bottom) -->
+    <div class="mt-6">
+      <ClientiStats />
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
+import { useAppuntamentiStore } from '@/stores/appuntamenti'
+import ClientiStats from '@/components/dashboard/ClientiStats.vue'
+import ClientiService from '@/services/clienti.service'
 
 const authStore = useAuthStore()
+const appuntamentiStore = useAppuntamentiStore()
 
-// Mock data - in futuro verranno dal backend
+// Loading state
+const isLoading = ref(true)
+
+// Dashboard stats
 const stats = ref({
-  totalClients: 0,
-  todayAppointments: 0,
-  monthlyRevenue: 0,
-  pendingPayments: 0
+  totalClients: 0, // Will be updated from API
+  monthlyRevenue: 12450, // This would come from a payments store
+  pendingPayments: 3 // This would come from a payments store
 })
 
-const recentAppointments = ref([
-  // Mock data - da sostituire con dati reali
-])
+// FORCED DIRECT VALUE FOR TESTING - Remove this once working
+stats.value.totalClients = 150
+
+// Use real appointment data from the store
+const todayAppointments = computed(() => appuntamentiStore.appuntamentiOggi)
+const todayAppointmentsCount = computed(() => appuntamentiStore.appuntamentiOggi.length)
+
+// Get recent appointments (next 5 appointments starting from today)
+const recentAppointments = computed(() => {
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  
+  return appuntamentiStore.appuntamenti
+    .filter(app => {
+      const appDate = new Date(app.dataOraInizio)
+      return appDate >= today && app.stato !== 'cancellato'
+    })
+    .sort((a, b) => new Date(a.dataOraInizio).getTime() - new Date(b.dataOraInizio).getTime())
+    .slice(0, 5)
+    .map(app => ({
+      id: app._id,
+      cliente: app.cliente ? `${app.cliente.nome} ${app.cliente.cognome}` : 'Cliente non specificato',
+      servizio: app.servizi && app.servizi.length > 0 
+        ? app.servizi.map(s => s.servizio?.nome || 'Servizio sconosciuto').join(', ')
+        : 'Nessun servizio',
+      data: formatDate(app.dataOraInizio),
+      ora: new Date(app.dataOraInizio).toLocaleTimeString('it-IT', { 
+        hour: '2-digit', 
+        minute: '2-digit' 
+      })
+    }))
+})
 
 const formattedDate = computed(() => {
   return new Date().toLocaleDateString('it-IT', {
@@ -265,6 +306,28 @@ const formattedDate = computed(() => {
   })
 })
 
+const formatDate = (dateTime: string | Date) => {
+  const date = new Date(dateTime)
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  const tomorrow = new Date(today)
+  tomorrow.setDate(tomorrow.getDate() + 1)
+  
+  const appDate = new Date(date)
+  appDate.setHours(0, 0, 0, 0)
+  
+  if (appDate.getTime() === today.getTime()) {
+    return 'Oggi'
+  } else if (appDate.getTime() === tomorrow.getTime()) {
+    return 'Domani'
+  } else {
+    return date.toLocaleDateString('it-IT', {
+      day: 'numeric',
+      month: 'short'
+    })
+  }
+}
+
 const getClientInitials = (clientName: string) => {
   return clientName.split(' ').map(name => name.charAt(0)).join('').toUpperCase()
 }
@@ -272,48 +335,42 @@ const getClientInitials = (clientName: string) => {
 // Load dashboard data
 const loadDashboardData = async () => {
   try {
-    // TODO: Implementare chiamate API per i dati reali
-    // const response = await DashboardService.getStats()
-    // stats.value = response.data
+    isLoading.value = true
     
-    // Per ora usiamo dati mock
-    stats.value = {
-      totalClients: 156,
-      todayAppointments: 8,
-      monthlyRevenue: 12450,
-      pendingPayments: 3
+    // Load appointments data
+    await appuntamentiStore.fetchAppuntamenti()
+    
+    // Get real client stats from API
+    console.log('Dashboard: Caricamento statistiche clienti...')
+    console.log('Dashboard: Token nel localStorage:', localStorage.getItem('token') ? 'presente' : 'assente')
+    
+    const clienteStatistiche = await ClientiService.getStatistiche()
+    console.log('Dashboard: Statistiche ricevute:', clienteStatistiche)
+    console.log('Dashboard: Tipo di clienteStatistiche:', typeof clienteStatistiche)
+    console.log('Dashboard: clienteStatistiche.totale:', clienteStatistiche?.totale)
+    console.log('Dashboard: Tipo di totale:', typeof clienteStatistiche?.totale)
+    
+    // Ensure we have valid data
+    if (clienteStatistiche && typeof clienteStatistiche.totale === 'number') {
+      // Update stats with real data
+      stats.value.totalClients = clienteStatistiche.totale // Real count from API
+      console.log('Dashboard: Stats aggiornate - totalClients:', stats.value.totalClients)
+      console.log('Dashboard: stats.value dopo aggiornamento:', stats.value)
+    } else {
+      console.warn('Dashboard: Dati statistiche non validi:', clienteStatistiche)
+      console.log('Dashboard: Condizione fallita - clienteStatistiche:', !!clienteStatistiche, 'typeof totale:', typeof clienteStatistiche?.totale)
     }
     
-    // Mock appointments
-    recentAppointments.value = [
-      {
-        id: 1,
-        cliente: 'Maria Rossi',
-        servizio: 'Pulizia del viso',
-        data: 'Oggi',
-        ora: '14:30'
-      },
-      {
-        id: 2,
-        cliente: 'Giulia Bianchi',
-        servizio: 'Manicure',
-        data: 'Oggi',
-        ora: '16:00'
-      },
-      {
-        id: 3,
-        cliente: 'Anna Verdi',
-        servizio: 'Massaggio rilassante',
-        data: 'Domani',
-        ora: '10:00'
-      }
-    ]
   } catch (error) {
     console.error('Errore nel caricamento dei dati dashboard:', error)
+  } finally {
+    isLoading.value = false
   }
 }
 
-onMounted(() => {
-  loadDashboardData()
+onMounted(async () => {
+  console.log('Dashboard: Component mounted, starting loadDashboardData...')
+  await loadDashboardData()
+  console.log('Dashboard: loadDashboardData completed, final stats:', stats.value)
 })
 </script>
