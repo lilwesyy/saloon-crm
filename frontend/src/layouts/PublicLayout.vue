@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+  <div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col">
     <!-- Header pubblico -->
     <header class="bg-white shadow-sm">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -35,13 +35,13 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-white border-t mt-auto">
+    <footer class="bg-white border-t">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div class="flex flex-col md:flex-row justify-between items-center">
+        <div class="flex flex-col items-center justify-center text-center">
           <div class="text-sm text-gray-600">
             © {{ new Date().getFullYear() }} {{ nomeAzienda }}. Tutti i diritti riservati.
           </div>
-          <div class="flex items-center space-x-4 mt-4 md:mt-0">
+          <div class="flex items-center space-x-4 mt-4">
             <a 
               v-if="linkPrivacy" 
               :href="linkPrivacy" 
