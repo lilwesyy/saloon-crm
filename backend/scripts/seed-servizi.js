@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const Servizio = require('../src/models/servizio.model');
 
 // Configurazione database
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/esteticacrm';
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://mongodb:27017/esteticacrm';
 
 // Servizi di esempio per centro estetico
 const serviziEsempio = [

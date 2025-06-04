@@ -8,7 +8,10 @@
     "dev": "nodemon src/index.js",
     "test": "jest",
     "create-admin": "node scripts/create-admin.js",
-    "seed-clienti": "node scripts/seed-clienti.js"
+    "seed-clienti": "node scripts/seed-clienti.js",
+    "seed-servizi": "node scripts/seed-servizi.js",
+    "seed-operatori": "node scripts/seed-operatori.js",
+    "seed-all": "node scripts/create-admin.js && node scripts/seed-clienti.js && node scripts/seed-servizi.js && node scripts/seed-operatori.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

@@ -64,7 +64,7 @@ const operatori = [
 
 async function seedOperatori() {
   try {
-    await mongoose.connect('mongodb://saloon-mongo:27017/esteticacrm');
+    await mongoose.connect('mongodb://mongodb:27017/esteticacrm');
     console.log('✅ Connesso al database');
 
     // Controlla se gli operatori esistono già
