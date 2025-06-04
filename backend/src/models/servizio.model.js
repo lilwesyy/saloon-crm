@@ -10,6 +10,7 @@ const servizioSchema = new Schema({
   categoria: { type: String, required: true },
   immagine: String,
   attivo: { type: Boolean, default: true },
+  prenotabileOnline: { type: Boolean, default: false }, // se il servizio è prenotabile online
   tempoRecupero: { type: Number, default: 0 }, // tempo di recupero in minuti
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }

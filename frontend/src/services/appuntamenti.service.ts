@@ -65,7 +65,7 @@ export interface UpdateAppuntamentoData extends Partial<CreateAppuntamentoData> 
 }
 
 class AppuntamentiService {
-  private readonly baseUrl = '/api/appuntamenti'
+  private readonly baseUrl = 'appuntamenti'
 
   // Ottiene tutti gli appuntamenti con filtri opzionali
   async getAppuntamenti(params?: {

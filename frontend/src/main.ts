@@ -22,10 +22,19 @@ app.use(Vue3Toastify, {
   theme: 'light'
 })
 
-// Initialize authentication on app start
+// Initialize authentication only for protected routes
 const initApp = async () => {
   const authStore = useAuthStore()
-  await authStore.checkAuth()
+  
+  // Only check auth if we're not on a public route
+  const currentPath = window.location.pathname
+  const publicRoutes = ['/prenotazione-online', '/prenotazione']
+  const isPublicRoute = publicRoutes.some(route => currentPath.startsWith(route))
+  
+  if (!isPublicRoute) {
+    await authStore.checkAuth()
+  }
+  
   app.mount('#app')
 }
 

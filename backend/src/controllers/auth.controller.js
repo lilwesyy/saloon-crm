@@ -204,3 +204,39 @@ exports.resetPassword = async (req, res) => {
     res.status(500).json({ message: 'Errore durante il reset della password' });
   }
 };
+
+// Controller per ottenere utenti filtrati per ruolo
+exports.getUsersByRole = async (req, res) => {
+  try {
+    const { ruolo, attivo } = req.query;
+    
+    const filter = {};
+    if (ruolo) filter.ruolo = ruolo;
+    if (attivo !== undefined) filter.attivo = attivo === 'true';
+    
+    const users = await User.find(filter).select('-password');
+    
+    res.status(200).json(users);
+  } catch (error) {
+    console.error('Errore durante il recupero degli utenti:', error);
+    res.status(500).json({ message: 'Errore durante il recupero degli utenti' });
+  }
+};
+
+// Controller per ottenere un utente specifico per ID
+exports.getUserById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    const user = await User.findById(id).select('-password');
+    
+    if (!user) {
+      return res.status(404).json({ message: 'Utente non trovato' });
+    }
+    
+    res.status(200).json(user);
+  } catch (error) {
+    console.error('Errore durante il recupero dell\'utente:', error);
+    res.status(500).json({ message: 'Errore durante il recupero dell\'utente' });
+  }
+};

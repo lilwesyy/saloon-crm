@@ -1,15 +1,54 @@
 <template>
   <div class="space-y-6">
-    <!-- Header -->
+    <!-- Header Section -->
     <div class="sm:flex sm:items-center sm:justify-between">
       <div>
         <h1 class="text-2xl font-bold text-gray-900">Dashboard</h1>
-        <p class="mt-2 text-sm text-gray-700">
-          Benvenuto nel tuo centro estetico CRM, {{ authStore.userName }}
-        </p>
+        <p class="mt-2 text-sm text-gray-700">Benvenuto nel sistema di gestione del centro estetico</p>
       </div>
-      <div class="mt-4 sm:mt-0">
-        <span class="text-sm text-gray-500">
+      <div class="mt-4 sm:mt-0 flex space-x-3">
+        <router-link
+          to="/servizi/nuovo"
+          class="flex items-center justify-center px-4 py-3 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+        >
+          <svg class="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+          </svg>
+          Nuovo Servizio
+        </router-link>
+        
+        <router-link
+          to="/sale"
+          class="flex items-center justify-center px-4 py-3 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+        >
+          <svg class="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+          </svg>
+          Gestione Sale
+        </router-link>
+        
+        <router-link
+          to="/reminder"
+          class="flex items-center justify-center px-4 py-3 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+        >
+          <svg class="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-3 3V7.5a4.5 4.5 0 00-9 0V15a1 1 0 001 1h6z" />
+          </svg>
+          Reminder
+        </router-link>
+      </div>
+    </div>
+
+    <!-- Welcome Text -->
+    <div class="bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg p-6 text-white">
+      <h2 class="text-xl font-semibold mb-2">
+        Benvenuto nel tuo centro estetico CRM, {{ authStore.userName }}
+      </h2>
+      <p class="text-purple-100">
+        Gestisci il tuo centro estetico in modo efficiente con tutti gli strumenti a tua disposizione.
+      </p>
+      <div class="mt-4">
+        <span class="text-sm text-purple-100">
           Oggi è {{ formattedDate }}
         </span>
       </div>

@@ -31,6 +31,12 @@ router.post(
 // Route per ottenere l'utente corrente
 router.get('/me', authMiddleware.verifyToken, authController.getCurrentUser);
 
+// Route per ottenere utenti filtrati per ruolo (solo admin o manager può accedervi)
+router.get('/users', authMiddleware.verifyToken, authMiddleware.isAdmin, authController.getUsersByRole);
+
+// Route per ottenere un utente specifico per ID
+router.get('/users/:id', authMiddleware.verifyToken, authMiddleware.isAdmin, authController.getUserById);
+
 // Route per aggiornare la password
 router.post(
   '/update-password',

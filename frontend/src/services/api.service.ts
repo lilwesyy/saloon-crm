@@ -27,8 +27,12 @@ apiClient.interceptors.response.use(
   error => {
     // Gestione errore 401 (token scaduto o non valido)
     if (error.response && error.response.status === 401) {
-      // Non fare redirect automatico per evitare ricaricamenti durante il login
-      if (!window.location.pathname.includes('/login')) {
+      const currentPath = window.location.pathname
+      const publicRoutes = ['/prenotazione-online', '/prenotazione']
+      const isPublicRoute = publicRoutes.some(route => currentPath.startsWith(route))
+      
+      // Non fare redirect automatico per rotte pubbliche o pagina di login
+      if (!window.location.pathname.includes('/login') && !isPublicRoute) {
         localStorage.removeItem('token')
         localStorage.removeItem('user')
         window.location.href = '/login'
@@ -73,8 +77,12 @@ export const createApiClient = (endpoint: string) => {
     error => {
       // Gestione errore 401 (token scaduto o non valido)
       if (error.response && error.response.status === 401) {
-        // Non fare redirect automatico per evitare ricaricamenti durante il login
-        if (!window.location.pathname.includes('/login')) {
+        const currentPath = window.location.pathname
+        const publicRoutes = ['/prenotazione-online', '/prenotazione']
+        const isPublicRoute = publicRoutes.some(route => currentPath.startsWith(route))
+        
+        // Non fare redirect automatico per rotte pubbliche o pagina di login
+        if (!window.location.pathname.includes('/login') && !isPublicRoute) {
           localStorage.removeItem('token')
           localStorage.removeItem('user')
           window.location.href = '/login'

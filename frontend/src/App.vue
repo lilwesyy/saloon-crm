@@ -27,6 +27,9 @@
       
       <AppFooter />
     </div>
+    
+    <!-- Toast notifications -->
+    <Toast />
   </div>
 </template>
 
@@ -36,13 +39,15 @@ import { useRoute } from 'vue-router'
 import Header from '@/components/layout/Header.vue'
 import Sidebar from '@/components/layout/Sidebar.vue'
 import Footer from '@/components/layout/Footer.vue'
+import Toast from '@/components/ui/Toast.vue'
 
 export default defineComponent({
   name: 'App',
   components: {
     AppHeader: Header,
     AppSidebar: Sidebar,
-    AppFooter: Footer
+    AppFooter: Footer,
+    Toast
   },
   setup() {
     const route = useRoute()
@@ -51,8 +56,11 @@ export default defineComponent({
     // Pagine che non devono mostrare il layout principale
     const authPages = ['Login', 'NotFound']
     
+    // Pagine pubbliche (prenotazione online)
+    const publicPages = ['PrenotazioneOnline', 'ConfermaPrenotazione', 'CancellaPrenotazione']
+    
     const isAuthPage = computed(() => {
-      return authPages.includes(route.name as string)
+      return authPages.includes(route.name as string) || publicPages.includes(route.name as string)
     })
     
     const toggleSidebar = () => {

@@ -104,3 +104,35 @@ exports.toggleServizioAttivo = async (req, res) => {
     res.status(400).json({ message: error.message });
   }
 };
+
+/**
+ * Get all available categories
+ */
+exports.getCategorie = async (req, res) => {
+  try {
+    // Lista predefinita di categorie sempre disponibili
+    const categoriePredefinite = [
+      'Corpo',
+      'Epilazione', 
+      'Mani',
+      'Piedi',
+      'Viso',
+      'Capelli',
+      'Trattamenti',
+      'Massaggi'
+    ];
+    
+    // Ottieni anche le categorie dinamiche dai servizi esistenti
+    const categorieDinamiche = await Servizio.distinct('categoria');
+    
+    // Combina le categorie predefinite con quelle dinamiche, rimuovendo duplicati
+    const tutteLeCategorie = [...new Set([...categoriePredefinite, ...categorieDinamiche])];
+    
+    // Ordina alfabeticamente
+    tutteLeCategorie.sort();
+    
+    res.status(200).json(tutteLeCategorie);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

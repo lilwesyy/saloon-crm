@@ -10,6 +10,12 @@ router.use(authMiddleware.verifyToken);
 // GET /api/servizi - Lista servizi
 router.get('/', serviziController.getAllServizi);
 
+// GET /api/servizi/categorie - Lista tutte le categorie
+router.get('/categorie', serviziController.getCategorie);
+
+// GET /api/servizi/categoria/:categoria - Servizi per categoria
+router.get('/categoria/:categoria', serviziController.getServiziByCategoria);
+
 // GET /api/servizi/:id - Dettaglio servizio
 router.get('/:id', serviziController.getServizioById);
 
@@ -41,9 +47,6 @@ router.put(
 
 // DELETE /api/servizi/:id - Elimina servizio
 router.delete('/:id', authMiddleware.isAdmin, serviziController.deleteServizio);
-
-// GET /api/servizi/categoria/:categoria - Servizi per categoria
-router.get('/categoria/:categoria', serviziController.getServiziByCategoria);
 
 // PUT /api/servizi/:id/attivo - Attiva/disattiva servizio
 router.put(

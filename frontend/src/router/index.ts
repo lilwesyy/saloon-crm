@@ -16,6 +16,10 @@ const Pagamenti = () => import('@/views/pagamenti/PagamentiList.vue')
 const Reports = () => import('@/views/reports/Reports.vue')
 const NotFound = () => import('@/views/NotFound.vue')
 
+// Sale e Reminder views
+const SalaManagement = () => import('@/views/appuntamenti/SalaManagement.vue')
+const ReminderManagement = () => import('@/views/appuntamenti/ReminderManagement.vue')
+
 // Marketing views
 const CampagneList = () => import('@/views/marketing/CampagneList.vue')
 const CampagnaForm = () => import('@/views/marketing/CampagnaForm.vue')
@@ -25,6 +29,16 @@ const ProgrammaFedeltaDetail = () => import('@/views/marketing/ProgrammaFedeltaD
 const ProgrammaFedeltaForm = () => import('@/views/marketing/ProgrammaFedeltaForm.vue')
 const FedeltaList = () => import('@/views/marketing/FedeltaList.vue')
 const FedeltaDetail = () => import('@/views/marketing/FedeltaDetail.vue')
+
+// Users management views
+const UtentiList = () => import('@/views/utenti/UtentiList.vue')
+const UtenteDetail = () => import('@/views/utenti/UtenteDetail.vue')
+const Impostazioni = () => import('@/views/utenti/Impostazioni.vue')
+
+// Prenotazione online views (pubbliche)
+const PrenotazioneOnline = () => import('@/views/prenotazione/PrenotazioneOnline.vue')
+const ConfermaPrenotazione = () => import('@/views/prenotazione/ConfermaPrenotazione.vue')
+const CancellaPrenotazione = () => import('@/views/prenotazione/CancellaPrenotazione.vue')
 
 const routes: Array<RouteRecordRaw> = [
   {
@@ -85,6 +99,18 @@ const routes: Array<RouteRecordRaw> = [
     path: '/appuntamenti/:id',
     name: 'ModificaAppuntamento',
     component: AppuntamentoForm,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/sale',
+    name: 'GestioneSale',
+    component: SalaManagement,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/reminder',
+    name: 'GestioneReminder',
+    component: ReminderManagement,
     meta: { requiresAuth: true }
   },
   {
@@ -194,6 +220,50 @@ const routes: Array<RouteRecordRaw> = [
     component: Reports,
     meta: { requiresAuth: true, requiresAdmin: true }
   },
+  // User and operator management routes
+  {
+    path: '/utenti',
+    name: 'Utenti',
+    component: UtentiList,
+    meta: { requiresAuth: true, requiresAdmin: true }
+  },
+  {
+    path: '/utenti/nuovo',
+    name: 'NuovoUtente',
+    component: UtenteDetail,
+    meta: { requiresAuth: true, requiresAdmin: true }
+  },
+  {
+    path: '/utenti/:id',
+    name: 'DettaglioUtente',
+    component: UtenteDetail,
+    meta: { requiresAuth: true, requiresAdmin: true }
+  },
+  {
+    path: '/impostazioni',
+    name: 'Impostazioni',
+    component: Impostazioni,
+    meta: { requiresAuth: true }
+  },
+  // Routes pubbliche per prenotazione online
+  {
+    path: '/prenotazione-online',
+    name: 'PrenotazioneOnline',
+    component: PrenotazioneOnline,
+    meta: { public: true }
+  },
+  {
+    path: '/prenotazione/:id/conferma/:token',
+    name: 'ConfermaPrenotazione',
+    component: ConfermaPrenotazione,
+    meta: { public: true }
+  },
+  {
+    path: '/prenotazione/:id/cancella/:token',
+    name: 'CancellaPrenotazione',
+    component: CancellaPrenotazione,
+    meta: { public: true }
+  },
   {
     path: '/:pathMatch(.*)*',
     name: 'NotFound',
@@ -209,6 +279,12 @@ const router = createRouter({
 // Navigation guard
 router.beforeEach((to, from, next) => {
   const authStore = useAuthStore()
+  
+  // Consenti accesso alle routes pubbliche senza autenticazione
+  if (to.meta.public) {
+    next()
+    return
+  }
   
   // Verifica se l'utente è autenticato
   if (to.meta.requiresAuth && !authStore.isLoggedIn) {

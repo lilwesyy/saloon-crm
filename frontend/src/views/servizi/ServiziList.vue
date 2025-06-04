@@ -9,6 +9,75 @@
         Nuovo Servizio
       </router-link>
     </div>
+
+    <!-- Filtri con layout responsive migliorato -->
+    <div class="bg-white shadow-sm rounded-xl p-4 mb-6">
+      <div class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+        <!-- Campo ricerca con span maggiore su schermi grandi -->
+        <div class="lg:col-span-2">
+          <label for="searchInput" class="block text-sm font-medium text-gray-700 mb-2">Cerca servizi:</label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+            <input 
+              id="searchInput" 
+              type="text" 
+              v-model="filtroRicerca" 
+              @input="applicaFiltro" 
+              placeholder="Cerca per nome servizio..."
+              class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+            />
+          </div>
+        </div>
+        
+        <!-- Filtro categoria -->
+        <div>
+          <label for="categoriaFiltro" class="block text-sm font-medium text-gray-700 mb-2">Categoria:</label>
+          <select 
+            id="categoriaFiltro"
+            v-model="filtroCategoria"
+            @change="applicaFiltro"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+          >
+            <option value="">Tutte</option>
+            <option v-for="cat in categorie" :key="cat" :value="cat">{{ cat }}</option>
+          </select>
+        </div>
+        
+        <!-- Filtro stato -->
+        <div>
+          <label for="statoFiltro" class="block text-sm font-medium text-gray-700 mb-2">Stato:</label>
+          <select 
+            id="statoFiltro"
+            v-model="filtroStato"
+            @change="applicaFiltro"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+          >
+            <option value="">Tutti</option>
+            <option value="attivo">Solo attivi</option>
+            <option value="inattivo">Solo inattivi</option>
+          </select>
+        </div>
+
+        <!-- Filtro prenotabilità online - occupa tutta la riga su mobile -->
+        <div class="sm:col-span-2 lg:col-span-4">
+          <label for="prenotabileFiltro" class="block text-sm font-medium text-gray-700 mb-2">Prenotabilità online:</label>
+          <select 
+            id="prenotabileFiltro"
+            v-model="filtroPrenotabile"
+            @change="applicaFiltro"
+            class="w-full sm:w-auto px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+          >
+            <option value="">Tutti</option>
+            <option value="si">Solo prenotabili online</option>
+            <option value="no">Non prenotabili online</option>
+          </select>
+        </div>
+      </div>
+    </div>
     
     <div class="bg-white shadow-md rounded-lg overflow-hidden">
       <div class="p-6">
@@ -16,35 +85,98 @@
           Caricamento servizi...
         </div>
         
-        <div v-else-if="servizi.length === 0" class="text-center py-4 text-gray-500">
+        <div v-else-if="serviziFiltrati.length === 0" class="text-center py-4 text-gray-500">
           Nessun servizio trovato
         </div>
         
-        <div v-else class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <!-- Grid responsive con auto-fit e minmax per una migliore responsività -->
+        <div v-else class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
           <div 
-            v-for="servizio in servizi" 
-            :key="servizio.id"
-            class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
+            v-for="servizio in serviziFiltrati" 
+            :key="servizio._id"
+            class="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 flex flex-col min-h-[280px] max-w-full"
+            :class="{'border-l-4 border-l-green-500': servizio.attivo, 'border-l-4 border-l-gray-300': !servizio.attivo}"
           >
-            <h3 class="font-semibold text-lg">{{ servizio.nome }}</h3>
-            <p class="text-gray-600 text-sm">{{ servizio.descrizione }}</p>
-            <div class="mt-3 flex justify-between items-center">
-              <div>
-                <p class="text-xl font-bold text-green-600">€{{ servizio.prezzo }}</p>
-                <p class="text-sm text-gray-500">{{ servizio.durata }} min</p>
+            <!-- Header della card con layout migliorato -->
+            <div class="p-4 pb-2 flex-shrink-0">
+              <div class="flex justify-between items-start mb-2">
+                <h3 class="font-semibold text-lg leading-tight flex-1 mr-2 break-words">{{ servizio.nome }}</h3>
+                <div class="flex items-center flex-shrink-0 ml-2">
+                  <span 
+                    v-if="servizio.attivo" 
+                    class="inline-block w-2 h-2 rounded-full bg-green-500 mr-2"
+                    title="Servizio attivo"
+                  ></span>
+                  <span 
+                    v-else 
+                    class="inline-block w-2 h-2 rounded-full bg-gray-300 mr-2"
+                    title="Servizio non attivo"
+                  ></span>
+                  <span 
+                    v-if="servizio.prenotabileOnline" 
+                    class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full font-medium whitespace-nowrap"
+                    title="Prenotabile online"
+                  >
+                    Online
+                  </span>
+                </div>
               </div>
+              
+              <!-- Categoria badge -->
+              <div class="mb-2">
+                <span class="inline-block bg-gray-100 text-gray-700 px-2 py-1 rounded-full text-xs font-medium">
+                  {{ servizio.categoria }}
+                </span>
+              </div>
+            </div>
+            
+            <!-- Contenuto della card -->
+            <div class="px-4 flex-1 flex flex-col">
+              <p class="text-gray-600 text-sm mb-3 line-clamp-2 flex-1">
+                {{ servizio.descrizione || 'Nessuna descrizione disponibile' }}
+              </p>
+              
+              <!-- Prezzo e durata -->
+              <div class="mt-auto">
+                <div class="flex justify-between items-end mb-4">
+                  <div>
+                    <p class="text-2xl font-bold text-green-600">€{{ servizio.prezzo.toFixed(2) }}</p>
+                  </div>
+                  <div class="text-right">
+                    <div class="flex items-center text-xs text-gray-500 justify-end">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span>{{ servizio.durata }} min</span>
+                    </div>
+                    <div v-if="servizio.tempoRecupero > 0" class="text-xs text-orange-500 mt-1">
+                      Recupero: +{{ servizio.tempoRecupero }} min
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Footer della card con pulsanti -->
+            <div class="p-4 pt-0 flex-shrink-0">
               <div class="flex gap-2">
                 <router-link 
-                  :to="`/servizi/${servizio.id}`"
-                  class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition-colors"
+                  :to="`/servizi/${servizio._id}`"
+                  class="flex-1 bg-blue-600 text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors text-center flex items-center justify-center"
                 >
-                  Modifica
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                  <span class="hidden sm:inline">Modifica</span>
                 </router-link>
                 <button 
-                  @click="deleteServizio(servizio.id)"
-                  class="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700 transition-colors"
+                  @click="deleteServizio(servizio._id)"
+                  class="flex-shrink-0 bg-red-600 text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-red-700 transition-colors flex items-center justify-center"
+                  title="Elimina servizio"
                 >
-                  Elimina
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
                 </button>
               </div>
             </div>
@@ -56,33 +188,156 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
+import serviziService, { type Servizio } from '@/services/servizi.service'
 
 const loading = ref(true)
-const servizi = ref([])
+const servizi = ref<Servizio[]>([])
+const serviziOriginali = ref<Servizio[]>([])
+const categorie = ref<string[]>([])
+const filtroRicerca = ref('')
+const filtroCategoria = ref('')
+const filtroStato = ref('')
+const filtroPrenotabile = ref('')
+
+const serviziFiltrati = computed(() => {
+  let risultato = [...serviziOriginali.value]
+  
+  // Filtra per testo di ricerca
+  if (filtroRicerca.value.trim()) {
+    const cerca = filtroRicerca.value.toLowerCase().trim()
+    risultato = risultato.filter(s => 
+      s.nome.toLowerCase().includes(cerca) || 
+      (s.descrizione && s.descrizione.toLowerCase().includes(cerca))
+    )
+  }
+  
+  // Filtra per categoria
+  if (filtroCategoria.value) {
+    risultato = risultato.filter(s => s.categoria === filtroCategoria.value)
+  }
+  
+  // Filtra per stato
+  if (filtroStato.value) {
+    if (filtroStato.value === 'attivo') {
+      risultato = risultato.filter(s => s.attivo)
+    } else if (filtroStato.value === 'inattivo') {
+      risultato = risultato.filter(s => !s.attivo)
+    }
+  }
+  
+  // Filtra per prenotabilità online
+  if (filtroPrenotabile.value) {
+    if (filtroPrenotabile.value === 'si') {
+      risultato = risultato.filter(s => s.prenotabileOnline)
+    } else if (filtroPrenotabile.value === 'no') {
+      risultato = risultato.filter(s => !s.prenotabileOnline)
+    }
+  }
+  
+  return risultato
+})
+
+const applicaFiltro = () => {
+  // Il computed property serviziFiltrati si aggiorna automaticamente
+  // Non è necessario fare nulla qui, ma manteniamo la funzione per compatibilità
+}
 
 const fetchServizi = async () => {
   loading.value = true
   try {
-    // TODO: Implementare chiamata API
-    servizi.value = []
+    console.log('Fetching servizi...')
+    const data = await serviziService.getAllServizi()
+    console.log('Received data:', data)
+    serviziOriginali.value = Array.isArray(data) ? data : []
+    servizi.value = [...serviziOriginali.value] // Copia iniziale
   } catch (error) {
     console.error('Errore nel caricamento dei servizi:', error)
+    serviziOriginali.value = []
+    servizi.value = [] // Assicurati che sia sempre un array
   } finally {
     loading.value = false
+  }
+}
+
+const fetchCategorie = async () => {
+  try {
+    console.log('Caricamento categorie...')
+    categorie.value = await serviziService.getCategorie()
+    console.log('Categorie caricate:', categorie.value)
+  } catch (error) {
+    console.error('Errore nel caricamento delle categorie:', error)
+    categorie.value = []
   }
 }
 
 const deleteServizio = async (id: string) => {
   if (confirm('Sei sicuro di voler eliminare questo servizio?')) {
     try {
-      // TODO: Implementare chiamata API
-      await fetchServizi()
+      await serviziService.deleteServizio(id)
+      await fetchServizi() // Ricarica la lista dopo l'eliminazione
     } catch (error) {
       console.error('Errore nell\'eliminazione del servizio:', error)
+      alert('Errore nell\'eliminazione del servizio')
     }
   }
 }
 
-onMounted(fetchServizi)
+onMounted(async () => {
+  await fetchCategorie()
+  await fetchServizi()
+})
 </script>
+
+<style scoped>
+/* Classi CSS per migliorare la responsività */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Miglioramenti per schermi molto piccoli */
+@media (max-width: 640px) {
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  .grid-cols-1 > div {
+    min-width: 0; /* Previene overflow sui dispositivi piccoli */
+  }
+}
+
+/* Animazioni smooth per hover e focus */
+.transition-all {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Stili per card hover più fluidi */
+.hover\:shadow-md:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* Responsive breakpoints personalizzati per le card */
+@media (min-width: 1280px) {
+  .xl\:grid-cols-4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1536px) {
+  .grid-cols-5-2xl {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+/* Miglioramenti per focus accessibility */
+.focus\:ring-2:focus {
+  --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+  --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);
+  box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
+}
+</style>

@@ -27,6 +27,15 @@ const appuntamentoSchema = new Schema({
   },
   note: String,
   reminderInviato: { type: Boolean, default: false },
+  reminderConfig: {
+    attivo: { type: Boolean, default: true },
+    email: { type: Boolean, default: true },
+    sms: { type: Boolean, default: false },
+    tempi: [{
+      tipo: { type: String, enum: ['24h', '2h', '30m'], required: true },
+      inviato: { type: Boolean, default: false }
+    }]
+  },
   pagamento: {
     stato: { type: String, enum: ['non_pagato', 'parziale', 'completato'], default: 'non_pagato' },
     metodo: { type: String, enum: ['contanti', 'carta', 'abbonamento', 'altro'] },
