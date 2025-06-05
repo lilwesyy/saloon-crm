@@ -1,287 +1,314 @@
 <template>
-  <div class="container mx-auto px-4 py-6">
-    <div class="flex justify-between items-center mb-6">
-      <h1 class="text-3xl font-bold text-gray-900">Calendario Appuntamenti</h1>
-      <router-link 
-        to="/appuntamenti/nuovo" 
-        class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-      >
-        Nuovo Appuntamento
-      </router-link>
-    </div>
+  <div>
+    <div class="container mx-auto px-4 py-6">
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+        <h1 class="text-3xl font-bold text-gray-900">Calendario Appuntamenti</h1>
+        <router-link 
+          to="/appuntamenti/nuovo" 
+          class="inline-flex items-center gap-2 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors font-medium shadow-md"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+          </svg>
+          Nuovo Appuntamento
+        </router-link>
+      </div>
     
-    <div class="bg-white shadow-md rounded-lg p-6">
-      <div class="mb-6">
-        <div class="flex gap-4 items-center justify-between">
-          <div class="flex gap-4 items-center">
-            <button 
-              @click="navigateCalendar('prev')"
-              class="p-2 bg-gray-100 rounded-full hover:bg-gray-200"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
-            
-            <div class="text-lg font-medium">
-              {{ calendarTitle }}
-            </div>
-            
-            <button 
-              @click="navigateCalendar('next')"
-              class="p-2 bg-gray-100 rounded-full hover:bg-gray-200"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-            
-            <button
-              @click="setToday"
-              class="px-3 py-1 text-sm bg-gray-100 rounded hover:bg-gray-200"
-            >
-              Oggi
-            </button>
-          </div>
-          
-          <div class="flex gap-4 items-center">
-            <input 
-              v-model="selectedDate" 
-              type="date" 
-              class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-            <select 
-              v-model="viewMode" 
-              class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="day">Giorno</option>
-              <option value="week">Settimana</option>
-              <option value="month">Mese</option>
-            </select>
-          </div>
-        </div>
-      </div>
-      
-      <div v-if="loading" class="text-center py-8">
-        Caricamento appuntamenti...
-      </div>
-      
-      <div v-else-if="error" class="text-center py-8 text-red-500">
-        {{ error }}
-      </div>
-      
-      <!-- Day view -->
-      <div v-else-if="viewMode === 'day'" class="space-y-4">
-        <h3 class="text-lg font-medium text-center mb-4">
-          {{ formatFullDate(currentViewStartDate) }}
-        </h3>
-        
-        <div class="grid grid-cols-1 gap-4">
-          <div v-if="appuntamentiFiltered.length === 0" class="text-center py-8 text-gray-500">
-            Nessun appuntamento per la data selezionata
-          </div>
-          
-          <div 
-            v-for="appuntamento in appuntamentiFiltered.sort((a, b) => 
-              new Date(a.dataOraInizio).getTime() - new Date(b.dataOraInizio).getTime())" 
-            :key="appuntamento._id"
-            class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
-            :class="{
-              'border-yellow-300 bg-yellow-50': appuntamento.stato === 'prenotato',
-              'border-green-300 bg-green-50': appuntamento.stato === 'confermato',
-              'border-blue-300 bg-blue-50': appuntamento.stato === 'completato',
-              'border-red-300 bg-red-50': appuntamento.stato === 'cancellato',
-              'border-gray-300 bg-gray-50': appuntamento.stato === 'noshow'
-            }"
-          >
-            <div class="flex flex-col gap-3">
-              <div class="flex justify-between items-start">
-                <div>
-                  <div class="flex items-center gap-2">
-                    <h3 class="font-semibold text-lg">{{ appuntamento.cliente.nome }} {{ appuntamento.cliente.cognome }}</h3>
-                    <span 
-                      class="inline-block px-2 py-1 text-xs rounded-full"
-                      :class="{
-                        'bg-yellow-100 text-yellow-800': appuntamento.stato === 'prenotato',
-                        'bg-green-100 text-green-800': appuntamento.stato === 'confermato',
-                        'bg-blue-100 text-blue-800': appuntamento.stato === 'completato',
-                        'bg-red-100 text-red-800': appuntamento.stato === 'cancellato',
-                        'bg-gray-100 text-gray-800': appuntamento.stato === 'noshow'
-                      }"
-                    >
-                      {{ appuntamento.stato.charAt(0).toUpperCase() + appuntamento.stato.slice(1) }}
-                    </span>
-                  </div>
-                  <p class="text-gray-600 font-medium">{{ getServizioNames(appuntamento) }}</p>
-                  <p class="text-sm text-gray-500">
-                    <span class="font-medium">Orario:</span> {{ formatTime(appuntamento.dataOraInizio) }} - {{ formatTime(appuntamento.dataOraFine) }} 
-                    ({{ formatDuration(appuntamento) }})
-                  </p>
-                  <p class="text-sm text-gray-500">
-                    <span class="font-medium">Operatore:</span> {{ appuntamento.operatore.nome }} {{ appuntamento.operatore.cognome }}
-                  </p>
+      <div class="bg-white shadow-lg rounded-lg p-6">
+        <div class="mb-6">
+          <div class="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
+            <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+              <div class="flex items-center gap-2">
+                <button 
+                  @click="navigateCalendar('prev')"
+                  class="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+                
+                <div class="text-lg font-semibold text-gray-800 min-w-[180px] text-center">
+                  {{ calendarTitle }}
                 </div>
-                <div class="text-right">
-                  <div class="text-lg font-bold">{{ formatTime(appuntamento.dataOraInizio) }}</div>
-                  <div class="text-sm text-gray-500">{{ formatShortDate(new Date(appuntamento.dataOraInizio)) }}</div>
-                </div>
+                
+                <button 
+                  @click="navigateCalendar('next')"
+                  class="p-2 bg-gray-100 rounded-full hover:bg-gray-200 transition-colors"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
               </div>
               
-              <div class="flex gap-2 justify-between border-t pt-3 mt-1">
-                <div class="flex gap-2">
-                  <button
-                    v-if="appuntamento.stato === 'prenotato'"
-                    @click="updateStatoAppuntamento(appuntamento._id, 'confermato')"
-                    class="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700 transition-colors flex items-center gap-1"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                    </svg>
-                    Conferma
-                  </button>
-                  <button 
-                    v-if="appuntamento.stato === 'prenotato' || appuntamento.stato === 'confermato'"
-                    @click="updateStatoAppuntamento(appuntamento._id, 'completato')"
-                    class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition-colors flex items-center gap-1"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    Completa
-                  </button>
-                  <button 
-                    v-if="appuntamento.stato !== 'cancellato' && appuntamento.stato !== 'noshow'"
-                    @click="updateStatoAppuntamento(appuntamento._id, 'noshow')"
-                    class="bg-gray-600 text-white px-3 py-1 rounded text-sm hover:bg-gray-700 transition-colors flex items-center gap-1"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    No-show
-                  </button>
-                </div>
-                <div class="flex gap-2">
-                  <router-link 
-                    :to="`/appuntamenti/${appuntamento._id}`"
-                    class="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition-colors flex items-center gap-1"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                    </svg>
-                    Modifica
-                  </router-link>
-                  <button 
-                    v-if="appuntamento.stato !== 'cancellato'"
-                    @click="updateStatoAppuntamento(appuntamento._id, 'cancellato')"
-                    class="bg-red-600 text-white px-3 py-1 rounded text-sm hover:bg-red-700 transition-colors flex items-center gap-1"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                    Annulla
-                  </button>
-                  <button 
-                    @click="deleteAppuntamento(appuntamento._id)"
-                    class="bg-red-800 text-white px-3 py-1 rounded text-sm hover:bg-red-900 transition-colors flex items-center gap-1"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                    Elimina
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Week view -->
-      <div v-else-if="viewMode === 'week'" class="space-y-4">
-        <div class="grid grid-cols-7 gap-2">
-          <div 
-            v-for="(day, index) in weekDays" 
-            :key="index" 
-            class="p-3 text-center border-b-2"
-            :class="isToday(day) ? 'border-blue-500 font-semibold' : 'border-gray-200'"
-          >
-            <div class="text-sm">{{ formatWeekDay(day) }}</div>
-            <div class="text-xs text-gray-500">{{ formatShortDate(day) }}</div>
-          </div>
-          
-          <template v-for="(day, dayIndex) in weekDays" :key="`day-${dayIndex}`">
-            <div class="min-h-[150px] border border-gray-100 p-1">
-              <div
-                v-for="appuntamento in getAppuntamentiByDay(day)"
-                :key="`${day}-${appuntamento._id}`" 
-                class="mb-1 p-1 text-xs rounded text-white overflow-hidden"
-                :class="{
-                  'bg-yellow-500': appuntamento.stato === 'prenotato',
-                  'bg-green-500': appuntamento.stato === 'confermato',
-                  'bg-blue-500': appuntamento.stato === 'completato',
-                  'bg-red-500': appuntamento.stato === 'cancellato',
-                  'bg-gray-500': appuntamento.stato === 'noshow'
-                }"
+              <button
+                @click="setToday"
+                class="px-4 py-2 text-sm bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors font-medium"
               >
-                <div class="font-medium truncate">{{ formatTime(appuntamento.dataOraInizio) }}</div>
-                <div class="truncate">{{ appuntamento.cliente.nome }} {{ appuntamento.cliente.cognome }}</div>
-                <router-link 
-                  :to="`/appuntamenti/${appuntamento._id}`"
-                  class="block mt-1 bg-white bg-opacity-20 text-center hover:bg-opacity-30 rounded py-0.5"
-                >
-                  Dettagli
-                </router-link>
-              </div>
+                Oggi
+              </button>
             </div>
-          </template>
-        </div>
-      </div>
-      
-      <!-- Month view -->
-      <div v-else-if="viewMode === 'month'" class="space-y-4">
-        <div class="grid grid-cols-7 gap-2 mb-2">
-          <div v-for="(day, index) in ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab']" :key="index" class="text-center font-medium text-sm py-2">
-            {{ day }}
+            
+            <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+              <input 
+                v-model="selectedDate" 
+                type="date" 
+                class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              >
+              <select 
+                v-model="viewMode" 
+                class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors font-medium"
+              >
+                <option value="day">Giorno</option>
+                <option value="week">Settimana</option>
+                <option value="month">Mese</option>
+              </select>
+            </div>
           </div>
         </div>
         
-        <div class="grid grid-cols-7 gap-2">
-          <div 
-            v-for="(day, index) in calendarDays" 
-            :key="index"
-            class="border min-h-[100px] p-2 relative"
-            :class="[
-              getDateString(day) === getDateString(new Date()) ? 'bg-blue-50' : '',
-              getMonth(day) !== getMonth(currentViewStartDate) ? 'bg-gray-50 text-gray-400' : ''
-            ]"
-          >
-            <div class="text-right mb-1">{{ day.getDate() }}</div>
-            <div class="absolute bottom-1 left-1 right-1">
-              <div
-                v-for="appuntamento in getFirstTwoAppuntamentiByDay(day)"
-                :key="`${index}-${appuntamento._id}`" 
-                class="mb-1 px-1 py-0.5 text-xs rounded overflow-hidden truncate text-white"
-                :class="{
-                  'bg-yellow-500': appuntamento.stato === 'prenotato',
-                  'bg-green-500': appuntamento.stato === 'confermato',
-                  'bg-blue-500': appuntamento.stato === 'completato',
-                  'bg-red-500': appuntamento.stato === 'cancellato',
-                  'bg-gray-500': appuntamento.stato === 'noshow'
-                }"
-              >
-                {{ formatTime(appuntamento.dataOraInizio) }} {{ appuntamento.cliente.nome.charAt(0) }}. {{ appuntamento.cliente.cognome }}
+        <div v-if="loading" class="text-center py-8">
+          Caricamento appuntamenti...
+        </div>
+        
+        <div v-else-if="error" class="text-center py-8 text-red-500">
+          {{ error }}
+        </div>
+        
+        <!-- Day view -->
+        <div v-else-if="viewMode === 'day'" class="space-y-4">
+          <h3 class="text-lg font-medium text-center mb-4">
+            {{ formatFullDate(currentViewStartDate) }}
+          </h3>
+          
+          <div class="grid grid-cols-1 gap-4">
+            <div v-if="appuntamentiFiltered.length === 0" class="text-center py-8 text-gray-500">
+              Nessun appuntamento per la data selezionata
+            </div>
+            
+            <div 
+              v-for="appuntamento in appuntamentiFiltered.sort((a, b) => 
+                new Date(a.dataOraInizio).getTime() - new Date(b.dataOraInizio).getTime())" 
+              :key="appuntamento._id"
+              class="bg-white border border-gray-200 rounded-lg p-6 shadow-md hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
+              :class="{
+                'border-l-4 border-l-yellow-500 bg-gradient-to-r from-yellow-50 to-white': appuntamento.stato === 'prenotato',
+                'border-l-4 border-l-green-500 bg-gradient-to-r from-green-50 to-white': appuntamento.stato === 'confermato',
+                'border-l-4 border-l-blue-500 bg-gradient-to-r from-blue-50 to-white': appuntamento.stato === 'completato',
+                'border-l-4 border-l-red-500 bg-gradient-to-r from-red-50 to-white': appuntamento.stato === 'cancellato',
+                'border-l-4 border-l-gray-500 bg-gradient-to-r from-gray-50 to-white': appuntamento.stato === 'noshow'
+              }"
+            >
+              <div class="flex flex-col gap-4">
+                <div class="flex justify-between items-start">
+                  <div class="flex-1">
+                    <div class="flex items-center gap-3 mb-2">
+                      <h3 class="font-bold text-xl text-gray-800">{{ appuntamento.cliente?.nome || 'Cliente sconosciuto' }} {{ appuntamento.cliente?.cognome || '' }}</h3>
+                      <span 
+                        class="inline-flex items-center px-3 py-1 text-xs font-semibold rounded-full"
+                        :class="{
+                          'bg-yellow-100 text-yellow-800 border border-yellow-200': appuntamento.stato === 'prenotato',
+                          'bg-green-100 text-green-800 border border-green-200': appuntamento.stato === 'confermato',
+                          'bg-blue-100 text-blue-800 border border-blue-200': appuntamento.stato === 'completato',
+                          'bg-red-100 text-red-800 border border-red-200': appuntamento.stato === 'cancellato',
+                          'bg-gray-100 text-gray-800 border border-gray-200': appuntamento.stato === 'noshow'
+                        }"
+                      >
+                        {{ appuntamento.stato.charAt(0).toUpperCase() + appuntamento.stato.slice(1) }}
+                      </span>
+                    </div>
+                    <div class="space-y-2">
+                      <p class="text-gray-700 font-semibold text-lg">{{ getServizioNames(appuntamento) }}</p>
+                      <div class="flex items-center gap-2 text-sm text-gray-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span class="font-medium">{{ formatTime(appuntamento.dataOraInizio) }} - {{ formatTime(appuntamento.dataOraFine) }}</span>
+                        <span class="text-gray-500">({{ formatDuration(appuntamento) }})</span>
+                      </div>
+                      <div class="flex items-center gap-2 text-sm text-gray-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                        <span class="font-medium">{{ appuntamento.operatore?.nome || 'Non assegnato' }} {{ appuntamento.operatore?.cognome || '' }}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="text-right flex flex-col items-end">
+                    <div class="text-2xl font-bold text-gray-800">{{ formatTime(appuntamento.dataOraInizio) }}</div>
+                    <div class="text-sm text-gray-500 font-medium">{{ formatShortDate(new Date(appuntamento.dataOraInizio)) }}</div>
+                  </div>
+                </div>
+                
+                <div class="flex flex-col lg:flex-row gap-3 justify-between items-start lg:items-center border-t border-gray-200 pt-4">
+                  <div class="flex gap-2 flex-wrap">
+                    <button
+                      v-if="appuntamento.stato === 'prenotato'"
+                      @click="updateStatoAppuntamento(appuntamento._id, 'confermato')"
+                      class="inline-flex items-center gap-2 bg-green-600 text-white px-3 lg:px-4 py-2 rounded-lg text-xs lg:text-sm font-medium hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition-colors"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                      </svg>
+                      <span class="hidden sm:inline">Conferma</span>
+                    </button>
+                    <button 
+                      v-if="appuntamento.stato === 'prenotato' || appuntamento.stato === 'confermato'"
+                      @click="updateStatoAppuntamento(appuntamento._id, 'completato')"
+                      class="inline-flex items-center gap-2 bg-blue-600 text-white px-3 lg:px-4 py-2 rounded-lg text-xs lg:text-sm font-medium hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span class="hidden sm:inline">Completa</span>
+                    </button>
+                    <button 
+                      v-if="appuntamento.stato !== 'cancellato' && appuntamento.stato !== 'noshow'"
+                      @click="updateStatoAppuntamento(appuntamento._id, 'noshow')"
+                      class="inline-flex items-center gap-2 bg-gray-600 text-white px-3 lg:px-4 py-2 rounded-lg text-xs lg:text-sm font-medium hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span class="hidden sm:inline">No-show</span>
+                    </button>
+                  </div>
+                  <div class="flex gap-2 flex-wrap">
+                    <router-link 
+                      :to="`/appuntamenti/${appuntamento._id}`"
+                      class="inline-flex items-center gap-2 bg-indigo-600 text-white px-3 lg:px-4 py-2 rounded-lg text-xs lg:text-sm font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                      </svg>
+                      <span class="hidden sm:inline">Modifica</span>
+                    </router-link>
+                    <button 
+                      v-if="appuntamento.stato !== 'cancellato'"
+                      @click="updateStatoAppuntamento(appuntamento._id, 'cancellato')"
+                      class="inline-flex items-center gap-2 bg-yellow-600 text-white px-3 lg:px-4 py-2 rounded-lg text-xs lg:text-sm font-medium hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 transition-colors"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                      <span class="hidden sm:inline">Annulla</span>
+                    </button>
+                    <button 
+                      @click="deleteAppuntamento(appuntamento._id, appuntamento.cliente ? `${appuntamento.cliente.nome} ${appuntamento.cliente.cognome}` : '')"
+                      class="inline-flex items-center gap-2 bg-red-600 text-white px-3 lg:px-4 py-2 rounded-lg text-xs lg:text-sm font-medium hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                      <span class="hidden sm:inline">Elimina</span>
+                    </button>
+                  </div>
+                </div>
               </div>
-              <div 
-                v-if="getAppuntamentiByDay(day).length > 2"
-                class="text-xs text-center text-blue-600 bg-blue-50 py-0.5 rounded"
-              >
-                +{{ getAppuntamentiByDay(day).length - 2 }} altri
+            </div>
+          </div>
+        </div>
+        
+        <!-- Week view -->
+        <div v-else-if="viewMode === 'week'" class="space-y-4">
+          <div class="grid grid-cols-7 gap-1 lg:gap-2 mb-4">
+            <div 
+              v-for="(day, index) in weekDays" 
+              :key="index" 
+              class="p-2 lg:p-4 text-center border-b-4 bg-white rounded-lg shadow-sm"
+              :class="isToday(day) ? 'border-blue-500 bg-blue-50 font-semibold' : 'border-gray-200'"
+            >
+              <div class="text-xs lg:text-sm font-medium text-gray-800">{{ formatWeekDay(day) }}</div>
+              <div class="text-xs text-gray-500 mt-1">{{ formatShortDate(day) }}</div>
+            </div>
+            
+            <template v-for="(day, dayIndex) in weekDays" :key="`day-${dayIndex}`">
+              <div class="min-h-[120px] lg:min-h-[180px] border border-gray-200 rounded-lg p-1 lg:p-3 bg-white shadow-sm">
+                <div
+                  v-for="appuntamento in getAppuntamentiByDay(day)"
+                  :key="`${day}-${appuntamento._id}`" 
+                  class="mb-1 lg:mb-2 p-1 lg:p-3 text-xs rounded-lg text-white overflow-hidden shadow-md hover:shadow-lg transition-shadow cursor-pointer"
+                  :class="{
+                    'bg-gradient-to-r from-yellow-500 to-yellow-600': appuntamento.stato === 'prenotato',
+                    'bg-gradient-to-r from-green-500 to-green-600': appuntamento.stato === 'confermato',
+                    'bg-gradient-to-r from-blue-500 to-blue-600': appuntamento.stato === 'completato',
+                    'bg-gradient-to-r from-red-500 to-red-600': appuntamento.stato === 'cancellato',
+                    'bg-gradient-to-r from-gray-500 to-gray-600': appuntamento.stato === 'noshow'
+                  }"
+                >
+                  <div class="font-semibold truncate">{{ formatTime(appuntamento.dataOraInizio) }}</div>
+                  <div class="truncate font-medium text-xs lg:text-sm">{{ appuntamento.cliente?.nome || 'Cliente sconosciuto' }} {{ appuntamento.cliente?.cognome || '' }}</div>
+                  <router-link 
+                    :to="`/appuntamenti/${appuntamento._id}`"
+                    class="hidden lg:block mt-2 bg-white bg-opacity-20 text-center hover:bg-opacity-30 rounded-md py-1 transition-all font-medium"
+                  >
+                    Dettagli
+                  </router-link>
+                </div>
+              </div>
+            </template>
+          </div>
+        </div>
+        
+        <!-- Month view -->
+        <div v-else-if="viewMode === 'month'" class="space-y-4">
+          <div class="grid grid-cols-7 gap-2 mb-4">
+            <div v-for="(day, index) in ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab']" :key="index" class="text-center font-semibold text-sm py-3 bg-gray-100 rounded-lg text-gray-700">
+              {{ day }}
+            </div>
+          </div>
+          
+          <div class="grid grid-cols-7 gap-2">
+            <div 
+              v-for="(day, index) in calendarDays" 
+              :key="index"
+              class="border border-gray-200 min-h-[120px] p-3 relative bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow"
+              :class="[
+                getDateString(day) === getDateString(new Date()) ? 'bg-blue-50 border-blue-300' : '',
+                getMonth(day) !== getMonth(currentViewStartDate) ? 'bg-gray-50 text-gray-400' : ''
+              ]"
+            >
+              <div class="text-right mb-2 font-semibold text-gray-800">{{ day.getDate() }}</div>
+              <div class="absolute bottom-2 left-2 right-2">
+                <div
+                  v-for="appuntamento in getFirstTwoAppuntamentiByDay(day)"
+                  :key="`${index}-${appuntamento._id}`" 
+                  class="mb-1 px-2 py-1 text-xs rounded-lg overflow-hidden truncate text-white font-medium shadow-sm"
+                  :class="{
+                    'bg-gradient-to-r from-yellow-500 to-yellow-600': appuntamento.stato === 'prenotato',
+                    'bg-gradient-to-r from-green-500 to-green-600': appuntamento.stato === 'confermato',
+                    'bg-gradient-to-r from-blue-500 to-blue-600': appuntamento.stato === 'completato',
+                    'bg-gradient-to-r from-red-500 to-red-600': appuntamento.stato === 'cancellato',
+                    'bg-gradient-to-r from-gray-500 to-gray-600': appuntamento.stato === 'noshow'
+                  }"
+                >
+                  {{ formatTime(appuntamento.dataOraInizio) }} {{ appuntamento.cliente?.nome?.charAt(0) || '?' }}. {{ appuntamento.cliente?.cognome || 'Sconosciuto' }}
+                </div>
+                <div 
+                  v-if="getAppuntamentiByDay(day).length > 2"
+                  class="text-xs text-center text-blue-700 bg-blue-100 py-1 rounded-lg font-medium shadow-sm"
+                >
+                  +{{ getAppuntamentiByDay(day).length - 2 }} altri
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
+    
+    <!-- Delete Confirmation Modal -->
+    <DeleteConfirmModal
+      :modelValue="showDeleteModal"
+      @update:modelValue="showDeleteModal = $event"
+      title="Conferma Eliminazione"
+      :message="`Sei sicuro di voler eliminare questo appuntamento${appuntamentoToDeleteInfo ? ' di ' + appuntamentoToDeleteInfo : ''}?`"
+      warningText="L'eliminazione di un appuntamento è definitiva e non può essere annullata."
+      confirmButtonText="Elimina Appuntamento"
+      @confirm="confirmDelete"
+      @cancel="cancelDelete"
+    />
   </div>
 </template>
 
@@ -289,6 +316,7 @@
 import { ref, onMounted, watch, computed } from 'vue'
 import { useAppuntamentiStore } from '@/stores/appuntamenti'
 import type { Appuntamento } from '@/services/appuntamenti.service'
+import DeleteConfirmModal from '@/components/common/DeleteConfirmModal.vue'
 
 const appuntamentiStore = useAppuntamentiStore()
 
@@ -454,7 +482,7 @@ const formatDuration = (appuntamento: Appuntamento) => {
 }
 
 const getServizioNames = (appuntamento: Appuntamento) => {
-  return appuntamento.servizi.map(s => s.servizio.nome).join(', ')
+  return appuntamento.servizi?.map(s => s.servizio?.nome || 'Servizio sconosciuto').join(', ') || 'Nessun servizio'
 }
 
 const getDateString = (date: Date) => {
@@ -565,16 +593,32 @@ const updateStatoAppuntamento = async (id: string, stato: string) => {
   }
 }
 
-const deleteAppuntamento = async (id: string) => {
-  if (confirm('Sei sicuro di voler eliminare questo appuntamento?')) {
+const showDeleteModal = ref(false);
+const appuntamentoToDeleteId = ref<string | null>(null);
+const appuntamentoToDeleteInfo = ref<string | null>(null);
+
+const deleteAppuntamento = (id: string, info?: string) => {
+  appuntamentoToDeleteId.value = id;
+  appuntamentoToDeleteInfo.value = info || '';
+  showDeleteModal.value = true;
+};
+
+const confirmDelete = async () => {
+  if (appuntamentoToDeleteId.value) {
     try {
-      await appuntamentiStore.deleteAppuntamento(id)
+      await appuntamentiStore.deleteAppuntamento(appuntamentoToDeleteId.value)
       // Refresh appointments after deletion
       await fetchAppuntamenti()
     } catch (error) {
       console.error('Errore nell\'eliminazione dell\'appuntamento:', error)
+    } finally {
+      showDeleteModal.value = false;
     }
   }
+};
+
+const cancelDelete = () => {
+  showDeleteModal.value = false;
 }
 
 watch(selectedDate, (newVal) => {

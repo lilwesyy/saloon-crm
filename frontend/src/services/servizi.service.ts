@@ -43,10 +43,10 @@ class ServiziService {
   async getAllServizi(): Promise<Servizio[]> {
     try {
       const response = await apiClient.get<Servizio[]>('/servizi')
-      console.log('Response from API:', response)
+      // console.log('Response from API:', response)
       // Se l'interceptor non funziona, proviamo con response.data
       const data = response.data || response
-      console.log('Data to return:', data)
+      // console.log('Data to return:', data)
       return Array.isArray(data) ? data : []
     } catch (error) {
       console.error('Errore nel recupero dei servizi:', error)
@@ -127,10 +127,10 @@ class ServiziService {
   async getCategorie(): Promise<string[]> {
     try {
       const response = await apiClient.get<string[]>('/servizi/categorie')
-      console.log('Response getCategorie:', response)
+      // console.log('Response getCategorie:', response)
       // Gestiamo il caso in cui response.data non sia definito
       const data = response.data || response
-      console.log('Data getCategorie:', data)
+      // console.log('Data getCategorie:', data)
       return Array.isArray(data) ? data : []
     } catch (error) {
       console.error('Errore nel recupero delle categorie:', error)

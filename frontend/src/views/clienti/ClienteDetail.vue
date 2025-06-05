@@ -189,8 +189,9 @@
     </div>
     
     <!-- Modal per aggiornare la classificazione -->
-    <div v-if="showClassificazioneModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white rounded-lg p-6 max-w-md w-full">
+    <transition name="modal" appear>
+      <div v-if="showClassificazioneModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4 transform transition-all duration-300 ease-out">
         <h3 class="text-lg font-semibold mb-4">Aggiorna Classificazione Cliente</h3>
         <div class="space-y-4">
           <div v-for="classificazione in classificazioni" :key="classificazione.value" class="flex items-center">
@@ -221,8 +222,21 @@
             Aggiorna
           </button>
         </div>
+        </div>
       </div>
-    </div>
+    </transition>
+    
+    <!-- Modal per conferma eliminazione cliente -->
+    <DeleteConfirmModal
+      :model-value="showDeleteModal"
+      @update:model-value="showDeleteModal = $event"
+      title="Conferma Eliminazione"
+      :message="`Sei sicuro di voler eliminare il cliente ${cliente?.nome} ${cliente?.cognome}?`"
+      warningText="Tutti i dati associati al cliente verranno eliminati definitivamente."
+      confirmButtonText="Elimina Cliente"
+      @confirm="confirmDelete"
+      @cancel="cancelDelete"
+    />
   </div>
 </template>
 
@@ -233,6 +247,7 @@ import { useClientiStore, Cliente } from '@/stores/clienti';
 import { useToast } from '@/composables/useToast';
 import AppuntamentiStorico from '@/components/clienti/AppuntamentiStorico.vue';
 import StatisticheCliente from '@/components/clienti/StatisticheCliente.vue';
+import DeleteConfirmModal from '@/components/common/DeleteConfirmModal.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -242,6 +257,7 @@ const toast = useToast();
 const loading = ref(true);
 const cliente = ref<Cliente | null>(null);
 const showClassificazioneModal = ref(false);
+const showDeleteModal = ref(false);
 const nuovaClassificazione = ref('');
 
 const classificazioni = [
@@ -280,17 +296,27 @@ const emailClient = () => {
 
 const deleteClient = async () => {
   if (!cliente.value) return;
+  showDeleteModal.value = true;
+};
+
+const confirmDelete = async () => {
+  if (!cliente.value) return;
   
-  if (confirm(`Sei sicuro di voler eliminare il cliente ${cliente.value.nome} ${cliente.value.cognome}?`)) {
-    try {
-      await clientiStore.deleteCliente(cliente.value._id);
-      toast.success('Cliente eliminato con successo');
-      router.push('/clienti');
-    } catch (error) {
-      console.error('Errore nell\'eliminazione del cliente:', error);
-      toast.error('Errore nell\'eliminazione del cliente: ' + (error.response?.data?.message || error.message || 'Errore sconosciuto'));
-    }
+  try {
+    await clientiStore.deleteCliente(cliente.value._id);
+    toast.success('Cliente eliminato con successo');
+    router.push('/clienti');
+  } catch (error) {
+    console.error('Errore nell\'eliminazione del cliente:', error);
+    const errorMessage = (error as any)?.response?.data?.message || (error as Error)?.message || 'Errore sconosciuto';
+    toast.error('Errore nell\'eliminazione del cliente: ' + errorMessage);
+  } finally {
+    showDeleteModal.value = false;
   }
+};
+
+const cancelDelete = () => {
+  showDeleteModal.value = false;
 };
 
 const updateClassificazione = async () => {
@@ -327,3 +353,56 @@ const fetchClienteData = async () => {
 
 onMounted(fetchClienteData);
 </script>
+
+<style scoped>
+/* Animazioni per il modal */
+.modal-enter-active {
+  transition: all 0.3s ease-out;
+}
+
+.modal-leave-active {
+  transition: all 0.2s ease-in;
+}
+
+.modal-enter-from {
+  opacity: 0;
+}
+
+.modal-enter-to {
+  opacity: 1;
+}
+
+.modal-leave-from {
+  opacity: 1;
+}
+
+.modal-leave-to {
+  opacity: 0;
+}
+
+/* Animazione per il contenuto del modal */
+.modal-enter-from .bg-white {
+  transform: scale(0.9) translateY(-20px);
+  opacity: 0;
+}
+
+.modal-enter-to .bg-white {
+  transform: scale(1) translateY(0);
+  opacity: 1;
+}
+
+.modal-leave-from .bg-white {
+  transform: scale(1) translateY(0);
+  opacity: 1;
+}
+
+.modal-leave-to .bg-white {
+  transform: scale(0.95) translateY(-10px);
+  opacity: 0;
+}
+
+/* Effetto backdrop blur quando il modal è aperto */
+.modal-enter-active .fixed {
+  backdrop-filter: blur(4px);
+}
+</style>

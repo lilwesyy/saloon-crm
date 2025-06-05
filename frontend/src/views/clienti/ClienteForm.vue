@@ -275,17 +275,36 @@ const handleFileUpload = (event: Event) => {
   }
 };
 
+// Utility functions for date conversion
+const formatDateForInput = (dateString: string): string => {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) return '';
+  return date.toISOString().split('T')[0];
+};
+
+const formatDateForAPI = (dateString: string): string => {
+  if (!dateString) return '';
+  return new Date(dateString).toISOString();
+};
+
 const handleSubmit = async () => {
   loading.value = true;
   try {
     let clienteId;
     
+    // Prepare data for API with properly formatted date
+    const clienteData = {
+      ...cliente.value,
+      dataNascita: cliente.value.dataNascita ? formatDateForAPI(cliente.value.dataNascita) : ''
+    };
+    
     if (isEditing.value) {
-      const clienteAggiornato = await clientiStore.updateCliente(route.params.id as string, cliente.value);
+      const clienteAggiornato = await clientiStore.updateCliente(route.params.id as string, clienteData);
       clienteId = clienteAggiornato._id;
       toast.success('Cliente aggiornato con successo');
     } else {
-      const nuovoCliente = await clientiStore.createCliente(cliente.value);
+      const nuovoCliente = await clientiStore.createCliente(clienteData);
       clienteId = nuovoCliente._id;
       toast.success('Cliente creato con successo');
     }
@@ -299,7 +318,8 @@ const handleSubmit = async () => {
     router.push('/clienti');
   } catch (error) {
     console.error('Errore nel salvare il cliente:', error);
-    toast.error('Errore nel salvare il cliente: ' + (error.message || 'Errore sconosciuto'));
+    const errorMessage = error instanceof Error ? error.message : 'Errore sconosciuto';
+    toast.error('Errore nel salvare il cliente: ' + errorMessage);
   } finally {
     loading.value = false;
   }
@@ -319,6 +339,12 @@ onMounted(async () => {
             provincia: ''
           };
         }
+        
+        // Format the date for the input field
+        if (clienteData.dataNascita) {
+          clienteData.dataNascita = formatDateForInput(clienteData.dataNascita);
+        }
+        
         cliente.value = { ...clienteData };
       }
     } catch (error) {

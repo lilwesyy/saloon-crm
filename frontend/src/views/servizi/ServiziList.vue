@@ -1,14 +1,18 @@
 <template>
-  <div class="container mx-auto px-4 py-6">
-    <div class="flex justify-between items-center mb-6">
-      <h1 class="text-3xl font-bold text-gray-900">Servizi</h1>
-      <router-link 
-        to="/servizi/nuovo" 
-        class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-      >
-        Nuovo Servizio
-      </router-link>
-    </div>
+  <div>
+    <div class="container mx-auto px-4 py-6">
+      <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold text-gray-900">Servizi</h1>
+        <router-link 
+          to="/servizi/nuovo" 
+          class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors inline-flex items-center gap-2"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+          </svg>
+          Nuovo Servizio
+        </router-link>
+      </div>
 
     <!-- Filtri con layout responsive migliorato -->
     <div class="bg-white shadow-sm rounded-xl p-4 mb-6">
@@ -170,7 +174,7 @@
                   <span class="hidden sm:inline">Modifica</span>
                 </router-link>
                 <button 
-                  @click="deleteServizio(servizio._id)"
+                  @click="deleteServizio(servizio._id, servizio.nome)"
                   class="flex-shrink-0 bg-red-600 text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-red-700 transition-colors flex items-center justify-center"
                   title="Elimina servizio"
                 >
@@ -185,12 +189,25 @@
       </div>
     </div>
   </div>
+  
+  <!-- Modal per conferma eliminazione servizio -->
+  <DeleteConfirmModal
+    :modelValue="showDeleteModal"
+    title="Conferma Eliminazione"
+    :message="`Sei sicuro di voler eliminare il servizio ${servicioToDeleteName}?`"
+    warningText="L'eliminazione di un servizio potrebbe impattare sugli appuntamenti esistenti."
+    confirmButtonText="Elimina Servizio"
+    @confirm="confirmDelete"
+    @cancel="cancelDelete"
+  />
+  </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import serviziService, { type Servizio } from '@/services/servizi.service'
 import { useToast } from '@/composables/useToast'
+import DeleteConfirmModal from '@/components/common/DeleteConfirmModal.vue'
 
 const toast = useToast()
 const loading = ref(true)
@@ -248,9 +265,9 @@ const applicaFiltro = () => {
 const fetchServizi = async () => {
   loading.value = true
   try {
-    console.log('Fetching servizi...')
+    // console.log('Fetching servizi...')
     const data = await serviziService.getAllServizi()
-    console.log('Received data:', data)
+    // console.log('Received data:', data)
     serviziOriginali.value = Array.isArray(data) ? data : []
     servizi.value = [...serviziOriginali.value] // Copia iniziale
   } catch (error) {
@@ -265,9 +282,9 @@ const fetchServizi = async () => {
 
 const fetchCategorie = async () => {
   try {
-    console.log('Caricamento categorie...')
+    // console.log('Caricamento categorie...')
     categorie.value = await serviziService.getCategorie()
-    console.log('Categorie caricate:', categorie.value)
+    // console.log('Categorie caricate:', categorie.value)
   } catch (error) {
     console.error('Errore nel caricamento delle categorie:', error)
     toast.error('Impossibile caricare le categorie dei servizi')
@@ -275,17 +292,33 @@ const fetchCategorie = async () => {
   }
 }
 
-const deleteServizio = async (id: string) => {
-  if (confirm('Sei sicuro di voler eliminare questo servizio?')) {
+const showDeleteModal = ref(false);
+const servicioToDelete = ref<string | null>(null);
+const servicioToDeleteName = ref<string | null>(null);
+
+const deleteServizio = (id: string, nome: string) => {
+  servicioToDelete.value = id;
+  servicioToDeleteName.value = nome;
+  showDeleteModal.value = true;
+};
+
+const confirmDelete = async () => {
+  if (servicioToDelete.value) {
     try {
-      await serviziService.deleteServizio(id)
+      await serviziService.deleteServizio(servicioToDelete.value)
       toast.success('Servizio eliminato con successo')
       await fetchServizi() // Ricarica la lista dopo l'eliminazione
-    } catch (error) {
+    } catch (error: any) {
       console.error('Errore nell\'eliminazione del servizio:', error)
       toast.error('Errore nell\'eliminazione del servizio: ' + (error.response?.data?.message || error.message || 'Errore sconosciuto'))
+    } finally {
+      showDeleteModal.value = false;
     }
   }
+}
+
+const cancelDelete = () => {
+  showDeleteModal.value = false;
 }
 
 onMounted(async () => {

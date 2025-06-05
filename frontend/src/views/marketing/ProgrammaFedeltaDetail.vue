@@ -42,7 +42,7 @@
           </button>
           <button 
             class="btn btn-danger"
-            @click="deleteProgramma"
+            @click="openDeleteConfirm"
           >
             <i class="fas fa-trash"></i>
             Elimina
@@ -271,21 +271,33 @@
       @close="showEditForm = false"
       @saved="onProgrammaUpdated"
     />
+
+    <!-- Delete Confirm Modal -->
+    <DeleteConfirmModal
+      v-model="showDeleteConfirm"
+      :title="'Conferma Eliminazione'"
+      :message="`Sei sicuro di voler eliminare questo programma fedeltà?`"
+      :warning-text="'Questa operazione eliminerà definitivamente il programma e tutti i dati associati.'"
+      @confirm="deleteProgramma"
+      @cancel="showDeleteConfirm = false"
+    />
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed, onMounted } from 'vue'
+import { defineComponent, ref, reactive, onMounted, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useProgrammaFedeltaStore } from '../../stores/programmaFedelta'
 import { useNotificationStore } from '../../stores/notifications'
 import ProgrammaFedeltaForm from './ProgrammaFedeltaForm.vue'
+import DeleteConfirmModal from '@/components/common/DeleteConfirmModal.vue'
 import type { ProgrammaFedelta } from '../../services/programmaFedelta.service'
 
 export default defineComponent({
   name: 'ProgrammaFedeltaDetail',
   components: {
-    ProgrammaFedeltaForm
+    ProgrammaFedeltaForm,
+    DeleteConfirmModal
   },
   setup() {
     const route = useRoute()
@@ -296,6 +308,7 @@ export default defineComponent({
     const loading = ref(true)
     const loadingMembri = ref(false)
     const showEditForm = ref(false)
+    const showDeleteConfirm = ref(false)
     const programma = ref<ProgrammaFedelta | null>(null)
     const statistiche = ref<any>({})
     const membri = ref<any[]>([])
@@ -367,12 +380,12 @@ export default defineComponent({
       }
     }
 
+    const openDeleteConfirm = () => {
+      showDeleteConfirm.value = true
+    }
+
     const deleteProgramma = async () => {
       if (!programma.value) return
-
-      if (!confirm(`Sei sicuro di voler eliminare il programma fedeltà di "${programma.value.cliente.nome} ${programma.value.cliente.cognome}"?`)) {
-        return
-      }
 
       try {
         await programmaStore.deleteProgramma(programma.value._id)
@@ -380,6 +393,8 @@ export default defineComponent({
         router.push({ name: 'ProgrammiFedelta' })
       } catch (error) {
         notificationStore.error('Errore nell\'eliminazione del programma')
+      } finally {
+        showDeleteConfirm.value = false
       }
     }
 
@@ -408,6 +423,7 @@ export default defineComponent({
       loading,
       loadingMembri,
       showEditForm,
+      showDeleteConfirm,
       programma,
       statistiche,
       membri,
@@ -417,6 +433,7 @@ export default defineComponent({
       formatDate,
       editProgramma,
       toggleProgramma,
+      openDeleteConfirm,
       deleteProgramma,
       viewCliente,
       viewAllMembri,
@@ -622,7 +639,9 @@ export default defineComponent({
 }
 
 .info-content {
-  space-y: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .info-row {

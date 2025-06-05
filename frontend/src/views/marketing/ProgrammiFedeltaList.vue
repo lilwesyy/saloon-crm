@@ -1,4 +1,3 @@
-<!-- filepath: /home/mirco/Documents/Dev/saloon-crm/frontend/src/views/marketing/ProgrammiFedeltaList.vue -->
 <template>
   <div class="programmi-fedelta-list">
     <!-- Header -->
@@ -174,7 +173,7 @@
           </button>
           <button 
             class="btn btn-danger"
-            @click="deleteProgramma(programma)"
+            @click="confirmDeleteProgramma(programma)"
           >
             <i class="fas fa-trash"></i>
           </button>
@@ -202,52 +201,78 @@
       @close="closeProgrammaForm"
       @saved="onProgrammaSaved"
     />
+
+    <!-- Modal conferma eliminazione -->
+    <DeleteConfirmModal
+      v-model="showDeleteModal"
+      :title="'Conferma Eliminazione'"
+      :message="`Sei sicuro di voler eliminare il programma '${programmaToDelete?.nome || ''}'?`"
+      :warning-text="'Questa operazione eliminerà definitivamente il programma e tutti i dati associati.'"
+      @confirm="confirmDelete"
+    />
   </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed, onMounted } from 'vue'
+import { defineComponent, ref, reactive, onMounted, computed, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+// Use correct import paths for the store
 import { useProgrammaFedeltaStore } from '@/stores/programmaFedelta'
 import { useNotificationStore } from '@/stores/notifications'
+import DeleteConfirmModal from '@/components/common/DeleteConfirmModal.vue'
 import ProgrammaFedeltaForm from './ProgrammaFedeltaForm.vue'
-import type { ProgrammaFedelta } from '@/types/programmaFedelta'
 
-// Simple debounce function
-function debounce(func: (...args: any[]) => void, delay: number) {
-  let timeoutId: ReturnType<typeof setTimeout>
-  return function (this: any, ...args: any[]) {
-    clearTimeout(timeoutId)
-    timeoutId = setTimeout(() => func.apply(this, args), delay)
-  }
+// Define the ProgrammaFedelta type if it doesn't exist
+interface ProgrammaFedelta {
+  _id: string;
+  nome: string;
+  descrizione?: string;
+  attivo: boolean;
+  [key: string]: any;
 }
 
 export default defineComponent({
   name: 'ProgrammiFedeltaList',
   components: {
-    ProgrammaFedeltaForm
+    ProgrammaFedeltaForm,
+    DeleteConfirmModal
   },
   setup() {
     const programmaStore = useProgrammaFedeltaStore()
     const notificationStore = useNotificationStore()
+    const router = useRouter()
+    const route = useRoute()
 
     const loading = ref(false)
     const showProgrammaForm = ref(false)
     const selectedProgramma = ref<ProgrammaFedelta | null>(null)
 
+    // Add state for delete confirmation modal
+    const showDeleteModal = ref(false)
+    const programmaToDelete = ref<ProgrammaFedelta | null>(null)
+
     const filters = ref({
+      attivo: '',
+      tipoPunti: '',
+      search: '',
       page: 1,
-      limit: 10,
-      cliente: '',
-      livello: '',
-      stato: ''
+      limit: 10
     })
 
     const programmi = computed(() => programmaStore.programmi)
     const statistics = computed(() => programmaStore.statistics)
 
-    const debouncedSearch = debounce(() => {
-      loadProgrammi()
-    }, 500)
+    // Simple debounced search implementation
+    const debouncedSearch = (() => {
+      let timeout: number | null = null;
+      return () => {
+        if (timeout) clearTimeout(timeout);
+        timeout = window.setTimeout(() => {
+          loadProgrammi();
+          timeout = null;
+        }, 500);
+      };
+    })()
 
     const loadProgrammi = async () => {
       loading.value = true
@@ -295,17 +320,23 @@ export default defineComponent({
       }
     }
 
-    const deleteProgramma = async (programma: ProgrammaFedelta) => {
-      if (!confirm(`Sei sicuro di voler eliminare il programma "${programma.nome}"?`)) {
-        return
-      }
+    const confirmDeleteProgramma = (programma: ProgrammaFedelta) => {
+      programmaToDelete.value = programma
+      showDeleteModal.value = true
+    }
+
+    const confirmDelete = async () => {
+      if (!programmaToDelete.value) return
 
       try {
-        await programmaStore.deleteProgramma(programma._id)
+        await programmaStore.deleteProgramma(programmaToDelete.value._id)
         notificationStore.success('Programma eliminato con successo')
         await loadProgrammi()
       } catch (error) {
         notificationStore.error('Errore nell\'eliminazione del programma')
+      } finally {
+        showDeleteModal.value = false
+        programmaToDelete.value = null
       }
     }
 
@@ -336,7 +367,8 @@ export default defineComponent({
       viewProgramma,
       editProgramma,
       toggleProgramma,
-      deleteProgramma,
+      confirmDeleteProgramma,
+      confirmDelete,
       closeProgrammaForm,
       onProgrammaSaved
     }

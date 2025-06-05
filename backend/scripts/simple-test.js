@@ -14,7 +14,6 @@ try {
       // Simple count query
       mongoose.connection.db.collection('appuntamentos').countDocuments()
         .then(count => {
-          console.log('Total appointments in database:', count);
           process.exit(0);
         })
         .catch(err => {
