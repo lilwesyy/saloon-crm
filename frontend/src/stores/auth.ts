@@ -110,6 +110,22 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
   
+  // Aggiungere metodo per aggiornare password
+  async function updatePassword(oldPassword: string, newPassword: string) {
+    loading.value = true
+    error.value = null
+    
+    try {
+      await AuthService.updatePassword(oldPassword, newPassword)
+      return true
+    } catch (err: any) {
+      error.value = err.message || 'Errore durante l\'aggiornamento della password'
+      throw err
+    } finally {
+      loading.value = false
+    }
+  }
+
   return {
     // State
     currentUser,
@@ -125,6 +141,7 @@ export const useAuthStore = defineStore('auth', () => {
     // Actions
     login,
     logout,
-    checkAuth
+    checkAuth,
+    updatePassword
   }
 })

@@ -230,12 +230,14 @@
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useClientiStore, Cliente } from '@/stores/clienti';
+import { useToast } from '@/composables/useToast';
 import AppuntamentiStorico from '@/components/clienti/AppuntamentiStorico.vue';
 import StatisticheCliente from '@/components/clienti/StatisticheCliente.vue';
 
 const route = useRoute();
 const router = useRouter();
 const clientiStore = useClientiStore();
+const toast = useToast();
 
 const loading = ref(true);
 const cliente = ref<Cliente | null>(null);
@@ -282,9 +284,11 @@ const deleteClient = async () => {
   if (confirm(`Sei sicuro di voler eliminare il cliente ${cliente.value.nome} ${cliente.value.cognome}?`)) {
     try {
       await clientiStore.deleteCliente(cliente.value._id);
+      toast.success('Cliente eliminato con successo');
       router.push('/clienti');
     } catch (error) {
       console.error('Errore nell\'eliminazione del cliente:', error);
+      toast.error('Errore nell\'eliminazione del cliente: ' + (error.response?.data?.message || error.message || 'Errore sconosciuto'));
     }
   }
 };
@@ -300,8 +304,10 @@ const updateClassificazione = async () => {
     // Aggiorna il cliente locale
     cliente.value.classificazione = nuovaClassificazione.value as any;
     showClassificazioneModal.value = false;
+    toast.success('Classificazione cliente aggiornata');
   } catch (error) {
     console.error('Errore nell\'aggiornamento della classificazione:', error);
+    toast.error('Errore nell\'aggiornamento della classificazione');
   }
 };
 
@@ -313,6 +319,7 @@ const fetchClienteData = async () => {
     }
   } catch (error) {
     console.error('Errore nel caricamento del cliente:', error);
+    toast.error('Impossibile caricare i dati del cliente');
   } finally {
     loading.value = false;
   }

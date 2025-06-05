@@ -248,7 +248,7 @@ const route = useRoute()
 const router = useRouter()
 const operatoriStore = useOperatoriStore()
 const serviziStore = useServiziStore()
-const { showToast } = useToast()
+const toast = useToast()
 
 const loading = ref(true)
 const saving = ref(false)
@@ -326,7 +326,7 @@ const loadData = async () => {
       }
     }
   } catch (error) {
-    showToast('Errore durante il caricamento dei dati', 'error')
+    toast.error('Errore durante il caricamento dei dati')
     console.error('Error loading data:', error)
   } finally {
     loading.value = false
@@ -339,12 +339,12 @@ const saveUser = async () => {
     
     // Basic validation
     if (!form.nome || !form.cognome || !form.email || !form.ruolo) {
-      showToast('Compila tutti i campi obbligatori', 'error')
+      toast.error('Compila tutti i campi obbligatori')
       return
     }
     
     if (!operatore.value && (!form.password || form.password.length < 6)) {
-      showToast('La password deve essere di almeno 6 caratteri', 'error')
+      toast.error('La password deve essere di almeno 6 caratteri')
       return
     }
     
@@ -372,18 +372,18 @@ const saveUser = async () => {
     if (operatore.value) {
       // Update existing user
       savedUser = await operatoriStore.updateOperatore(operatore.value._id, userData)
-      showToast('Utente aggiornato con successo', 'success')
+      toast.success('Utente aggiornato con successo')
     } else {
       // Create new user
       savedUser = await operatoriStore.createOperatore(userData)
-      showToast('Utente creato con successo', 'success')
+      toast.success('Utente creato con successo')
     }
     
     // Navigate back to the user list
     router.push('/utenti')
   } catch (error) {
     const errorMessage = error.response?.data?.message || error.message || 'Si è verificato un errore'
-    showToast(errorMessage, 'error')
+    toast.error(errorMessage)
   } finally {
     saving.value = false
   }

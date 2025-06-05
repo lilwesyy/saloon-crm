@@ -20,6 +20,8 @@ const programmaFedeltaRoutes = require('./routes/programmaFedelta.routes');
 const reminderRoutes = require('./routes/reminder.routes');
 const salaRoutes = require('./routes/sala.routes');
 const prenotazioneOnlineRoutes = require('./routes/prenotazioneOnline.routes');
+const settingsRoutes = require('./routes/settings.routes');
+const reportsRoutes = require('./routes/reports.routes');
 
 // Importazione servizi
 const schedulerService = require('./services/scheduler.service');
@@ -64,6 +66,8 @@ app.use('/api/programma-fedelta', programmaFedeltaRoutes);
 app.use('/api/reminder', reminderRoutes);
 app.use('/api/sale', salaRoutes);
 app.use('/api/prenotazione-online', prenotazioneOnlineRoutes);
+app.use('/api/settings', settingsRoutes);
+app.use('/api/reports', reportsRoutes);
 
 // Route base
 app.get('/api', (req, res) => {

@@ -151,7 +151,19 @@
               </div>
             </div>
             
-            <div class="sm:col-span-2">
+            <div>
+              <label for="businessEmail" class="block text-sm font-medium text-gray-700">Email</label>
+              <div class="mt-1">
+                <input
+                  type="email"
+                  id="businessEmail"
+                  v-model="systemSettings.businessEmail"
+                  class="shadow-sm focus:ring-purple-500 focus:border-purple-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                />
+              </div>
+            </div>
+            
+            <div>
               <label for="businessAddress" class="block text-sm font-medium text-gray-700">Indirizzo</label>
               <div class="mt-1">
                 <input
@@ -266,17 +278,20 @@
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
+import { useSettingsStore } from '@/stores/settings'
 import { useToast } from '@/composables/useToast'
+import settingsService from '@/services/settings.service'
 
 const authStore = useAuthStore()
-const { showToast } = useToast()
+const settingsStore = useSettingsStore()
+const toast = useToast()
 
 const showPasswordModal = ref(false)
 const passwordError = ref('')
 const changingPassword = ref(false)
 const saving = ref(false)
 
-const currentUser = computed(() => authStore.user || {})
+const currentUser = computed(() => authStore.currentUser || {})
 const isAdmin = computed(() => currentUser.value?.ruolo === 'admin')
 
 const passwordForm = reactive({
@@ -290,11 +305,13 @@ const notificationSettings = reactive({
   desktop: false
 })
 
+// Utilizziamo i valori dallo store anziché definirli qui
 const systemSettings = reactive({
-  businessName: 'Centro Estetico Bellezza',
-  businessPhone: '+39 123 456 7890',
-  businessAddress: 'Via Roma 123, 00100 Roma, Italia',
-  openingHours: 'Lun-Ven: 9:00-19:00\nSabato: 9:00-13:00\nDomenica: Chiuso'
+  businessName: settingsStore.businessName,
+  businessPhone: settingsStore.businessPhone,
+  businessEmail: settingsStore.businessEmail,
+  businessAddress: settingsStore.businessAddress, 
+  openingHours: settingsStore.openingHours
 })
 
 const getRuoloLabel = (ruolo) => {
@@ -331,7 +348,7 @@ const changePassword = async () => {
   try {
     changingPassword.value = true
     await authStore.updatePassword(passwordForm.oldPassword, passwordForm.newPassword)
-    showToast('Password aggiornata con successo', 'success')
+    toast.success('Password aggiornata con successo')
     showPasswordModal.value = false
     
     // Reset form
@@ -345,36 +362,62 @@ const changePassword = async () => {
   }
 }
 
-const saveNotificationSettings = () => {
-  // In a real app, would save to backend
-  localStorage.setItem('notificationSettings', JSON.stringify(notificationSettings))
-  showToast('Impostazioni di notifica salvate', 'success')
+const saveNotificationSettings = async () => {
+  try {
+    await settingsService.updateUserSettings({
+      notifications: {
+        email: notificationSettings.email,
+        desktop: notificationSettings.desktop
+      }
+    })
+    toast.success('Impostazioni di notifica salvate')
+  } catch (error) {
+    toast.error('Errore durante il salvataggio delle impostazioni di notifica')
+  }
 }
 
 const saveSystemSettings = async () => {
   try {
     saving.value = true
-    // In a real app, would save to backend
-    await new Promise(resolve => setTimeout(resolve, 800)) // Simulate API call
-    localStorage.setItem('systemSettings', JSON.stringify(systemSettings))
-    showToast('Impostazioni di sistema aggiornate', 'success')
+    await settingsStore.updateSystemSettings({
+      businessName: systemSettings.businessName,
+      businessPhone: systemSettings.businessPhone,
+      businessEmail: systemSettings.businessEmail,
+      businessAddress: systemSettings.businessAddress,
+      openingHours: systemSettings.openingHours
+    })
+    toast.success('Impostazioni di sistema aggiornate')
   } catch (error) {
-    showToast('Errore durante il salvataggio delle impostazioni', 'error')
+    toast.error('Errore durante il salvataggio delle impostazioni')
   } finally {
     saving.value = false
   }
 }
 
-onMounted(() => {
-  // In a real app, would load from backend
-  const savedNotificationSettings = localStorage.getItem('notificationSettings')
-  if (savedNotificationSettings) {
-    Object.assign(notificationSettings, JSON.parse(savedNotificationSettings))
-  }
-  
-  const savedSystemSettings = localStorage.getItem('systemSettings')
-  if (savedSystemSettings) {
-    Object.assign(systemSettings, JSON.parse(savedSystemSettings))
+onMounted(async () => {
+  try {
+    // Carica le impostazioni utente
+    const userSettingsData = await settingsService.getUserSettings()
+    if (userSettingsData && userSettingsData.notifications) {
+      notificationSettings.email = userSettingsData.notifications.email
+      notificationSettings.desktop = userSettingsData.notifications.desktop
+    }
+    
+    // Carica le impostazioni di sistema (solo per gli admin)
+    if (isAdmin.value) {
+      // Utilizza lo store per caricare le impostazioni di sistema
+      await settingsStore.fetchSystemSettings()
+      
+      // Aggiorna il form con i valori dallo store
+      systemSettings.businessName = settingsStore.businessName
+      systemSettings.businessPhone = settingsStore.businessPhone
+      systemSettings.businessEmail = settingsStore.businessEmail
+      systemSettings.businessAddress = settingsStore.businessAddress
+      systemSettings.openingHours = settingsStore.openingHours
+    }
+  } catch (error) {
+    console.error('Errore durante il caricamento delle impostazioni:', error)
+    toast.error('Errore durante il caricamento delle impostazioni')
   }
 })
 </script>

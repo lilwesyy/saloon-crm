@@ -191,6 +191,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import reportsService, { type ReportsData, type ReportsStats, type TopServizio, type AndamentoMensile, type TopCliente } from '@/services/reports.service'
 
 const loading = ref(true)
 
@@ -199,40 +200,49 @@ const periodo = ref({
   dataFine: ''
 })
 
-const stats = ref({
+const stats = ref<ReportsStats>({
   fatturato: 0,
   appuntamenti: 0,
   nuoviClienti: 0,
   ticketMedio: 0
 })
 
-const topServizi = ref([])
-const andamentoMensile = ref([])
-const topClienti = ref([])
+const topServizi = ref<TopServizio[]>([])
+const andamentoMensile = ref<AndamentoMensile[]>([])
+const topClienti = ref<TopCliente[]>([])
 
 const formatDate = (date: string) => {
   return new Date(date).toLocaleDateString('it-IT')
 }
 
 const applicaFiltri = async () => {
+  if (!periodo.value.dataInizio || !periodo.value.dataFine) {
+    alert('Seleziona sia la data di inizio che quella di fine')
+    return
+  }
   await fetchReports()
 }
 
 const fetchReports = async () => {
+  if (!periodo.value.dataInizio || !periodo.value.dataFine) {
+    return
+  }
+
   loading.value = true
   try {
-    // TODO: Implementare chiamate API per i reports
-    stats.value = {
-      fatturato: 0,
-      appuntamenti: 0,
-      nuoviClienti: 0,
-      ticketMedio: 0
-    }
-    topServizi.value = []
-    andamentoMensile.value = []
-    topClienti.value = []
+    const data = await reportsService.getReportsData(
+      periodo.value.dataInizio,
+      periodo.value.dataFine
+    )
+    
+    stats.value = data.stats
+    topServizi.value = data.topServizi
+    andamentoMensile.value = data.andamentoMensile
+    topClienti.value = data.topClienti
+    
   } catch (error) {
     console.error('Errore nel caricamento dei reports:', error)
+    alert('Errore nel caricamento dei reports')
   } finally {
     loading.value = false
   }
@@ -242,9 +252,25 @@ const refreshData = async () => {
   await fetchReports()
 }
 
-const exportReport = () => {
-  // TODO: Implementare esportazione report
-  console.log('Esportazione report...')
+const exportReport = async () => {
+  if (!periodo.value.dataInizio || !periodo.value.dataFine) {
+    alert('Seleziona un periodo per esportare il report')
+    return
+  }
+
+  try {
+    const blob = await reportsService.exportReport(
+      periodo.value.dataInizio,
+      periodo.value.dataFine
+    )
+    
+    const filename = `report_${periodo.value.dataInizio}_${periodo.value.dataFine}.csv`
+    reportsService.downloadCSV(blob, filename)
+    
+  } catch (error) {
+    console.error('Errore nell\'esportazione del report:', error)
+    alert('Errore nell\'esportazione del report')
+  }
 }
 
 onMounted(() => {

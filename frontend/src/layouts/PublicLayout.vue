@@ -66,10 +66,24 @@
 </template>
 
 <script setup lang="ts">
-// Configurazione aziendale - questi valori potrebbero venire da un servizio di configurazione
-const nomeAzienda = process.env.VUE_APP_BUSINESS_NAME || 'Centro Estetico Bellezza';
-const telefono = process.env.VUE_APP_BUSINESS_PHONE || '+39 123 456 7890';
-const email = process.env.VUE_APP_BUSINESS_EMAIL || 'info@centroestetico.it';
-const linkPrivacy = process.env.VUE_APP_PRIVACY_LINK || '';
-const linkTermini = process.env.VUE_APP_TERMS_LINK || '';
+import { onMounted, ref } from 'vue';
+import { useSettingsStore } from '@/stores/settings';
+
+const settingsStore = useSettingsStore();
+
+// Riferimenti reattivi per i valori delle impostazioni
+const nomeAzienda = ref(settingsStore.businessName);
+const telefono = ref(settingsStore.businessPhone || '+39 123 456 7890');
+const email = ref(settingsStore.businessEmail || 'info@centroestetico.it');
+const linkPrivacy = ref(process.env.VUE_APP_PRIVACY_LINK || '');
+const linkTermini = ref(process.env.VUE_APP_TERMS_LINK || '');
+
+// Carica le impostazioni del sistema all'avvio del componente
+onMounted(async () => {
+  await settingsStore.fetchSystemSettings();
+  // Aggiorna i valori reattivi con quelli dallo store
+  nomeAzienda.value = settingsStore.businessName;
+  telefono.value = settingsStore.businessPhone || telefono.value;
+  email.value = settingsStore.businessEmail || email.value;
+});
 </script>

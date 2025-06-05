@@ -34,12 +34,13 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed } from 'vue'
+import { defineComponent, ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import Header from '@/components/layout/Header.vue'
 import Sidebar from '@/components/layout/Sidebar.vue'
 import Footer from '@/components/layout/Footer.vue'
 import Toast from '@/components/ui/Toast.vue'
+import { useSettingsStore } from '@/stores/settings'
 
 export default defineComponent({
   name: 'App',
@@ -52,6 +53,7 @@ export default defineComponent({
   setup() {
     const route = useRoute()
     const isSidebarOpen = ref(false)
+    const settingsStore = useSettingsStore()
     
     // Pagine che non devono mostrare il layout principale
     const authPages = ['Login', 'NotFound']
@@ -61,6 +63,11 @@ export default defineComponent({
     
     const isAuthPage = computed(() => {
       return authPages.includes(route.name as string) || publicPages.includes(route.name as string)
+    })
+    
+    // Carica le impostazioni del sistema all'avvio dell'applicazione
+    onMounted(() => {
+      settingsStore.fetchSystemSettings()
     })
     
     const toggleSidebar = () => {

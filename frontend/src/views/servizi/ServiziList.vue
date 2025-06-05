@@ -190,7 +190,9 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import serviziService, { type Servizio } from '@/services/servizi.service'
+import { useToast } from '@/composables/useToast'
 
+const toast = useToast()
 const loading = ref(true)
 const servizi = ref<Servizio[]>([])
 const serviziOriginali = ref<Servizio[]>([])
@@ -253,6 +255,7 @@ const fetchServizi = async () => {
     servizi.value = [...serviziOriginali.value] // Copia iniziale
   } catch (error) {
     console.error('Errore nel caricamento dei servizi:', error)
+    toast.error('Impossibile caricare i servizi')
     serviziOriginali.value = []
     servizi.value = [] // Assicurati che sia sempre un array
   } finally {
@@ -267,6 +270,7 @@ const fetchCategorie = async () => {
     console.log('Categorie caricate:', categorie.value)
   } catch (error) {
     console.error('Errore nel caricamento delle categorie:', error)
+    toast.error('Impossibile caricare le categorie dei servizi')
     categorie.value = []
   }
 }
@@ -275,10 +279,11 @@ const deleteServizio = async (id: string) => {
   if (confirm('Sei sicuro di voler eliminare questo servizio?')) {
     try {
       await serviziService.deleteServizio(id)
+      toast.success('Servizio eliminato con successo')
       await fetchServizi() // Ricarica la lista dopo l'eliminazione
     } catch (error) {
       console.error('Errore nell\'eliminazione del servizio:', error)
-      alert('Errore nell\'eliminazione del servizio')
+      toast.error('Errore nell\'eliminazione del servizio: ' + (error.response?.data?.message || error.message || 'Errore sconosciuto'))
     }
   }
 }

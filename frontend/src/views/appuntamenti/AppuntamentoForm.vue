@@ -150,9 +150,11 @@
 import { ref, onMounted, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
+import { useToast } from '@/composables/useToast'
 
 const route = useRoute()
 const router = useRouter()
+const toast = useToast()
 
 const loading = ref(false)
 const isEditing = computed(() => !!route.params.id)
@@ -210,17 +212,17 @@ watch(() => appuntamento.value.servizi, (newServizi) => {
 const handleSubmit = async () => {
   // Validazione form
   if (!appuntamento.value.clienteId) {
-    alert('Seleziona un cliente')
+    toast.warning('Seleziona un cliente')
     return
   }
   
   if (appuntamento.value.servizi.length === 0) {
-    alert('Seleziona almeno un servizio')
+    toast.warning('Seleziona almeno un servizio')
     return
   }
   
   if (!appuntamento.value.operatoreId) {
-    alert('Seleziona un operatore')
+    toast.warning('Seleziona un operatore')
     return
   }
   
@@ -245,15 +247,17 @@ const handleSubmit = async () => {
     
     if (isEditing.value) {
       await appuntamentiStore.updateAppuntamento(route.params.id as string, appuntamentoData)
+      toast.success('Appuntamento aggiornato con successo')
     } else {
       await appuntamentiStore.createAppuntamento(appuntamentoData)
+      toast.success('Appuntamento creato con successo')
     }
     
     // Reindirizza al calendario degli appuntamenti
     router.push('/appuntamenti')
   } catch (error) {
     console.error('Errore nel salvare l\'appuntamento:', error)
-    alert('Errore nel salvare l\'appuntamento. Riprova.')
+    toast.error('Errore nel salvare l\'appuntamento: ' + (error.response?.data?.message || error.message || 'Riprova.'))
   } finally {
     loading.value = false
   }
@@ -294,6 +298,7 @@ const loadAppuntamento = async (id: string) => {
     }
   } catch (error) {
     console.error('Errore nel caricamento dell\'appuntamento:', error)
+    toast.error('Errore nel caricamento dell\'appuntamento')
   } finally {
     loading.value = false
   }
@@ -320,6 +325,7 @@ onMounted(async () => {
     }
   } catch (error) {
     console.error('Errore nel caricamento dei dati:', error)
+    toast.error('Errore nel caricamento dei dati necessari')
   } finally {
     loading.value = false
   }

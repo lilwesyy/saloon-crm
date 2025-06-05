@@ -168,9 +168,11 @@
 import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import serviziService, { type Servizio } from '@/services/servizi.service'
+import { useToast } from '@/composables/useToast'
 
 const route = useRoute()
 const router = useRouter()
+const toast = useToast()
 
 const loading = ref(false)
 const categorie = ref<string[]>([])
@@ -193,6 +195,7 @@ const aggiungiNuovaCategoria = () => {
   if (nuovaCategoria.value.trim()) {
     if (!categorie.value.includes(nuovaCategoria.value.trim())) {
       categorie.value.push(nuovaCategoria.value.trim())
+      toast.info(`Categoria '${nuovaCategoria.value.trim()}' aggiunta`)
     }
     servizio.value.categoria = nuovaCategoria.value.trim()
     nuovaCategoria.value = ''
@@ -205,13 +208,15 @@ const handleSubmit = async () => {
   try {
     if (isEditing.value) {
       await serviziService.updateServizio(route.params.id as string, servizio.value)
+      toast.success('Servizio aggiornato con successo')
     } else {
       await serviziService.createServizio(servizio.value)
+      toast.success('Servizio creato con successo')
     }
     router.push('/servizi')
   } catch (error) {
     console.error('Errore nel salvare il servizio:', error)
-    alert('Errore nel salvare il servizio')
+    toast.error('Errore nel salvare il servizio: ' + (error.response?.data?.message || error.message || 'Errore sconosciuto'))
   } finally {
     loading.value = false
   }
@@ -222,6 +227,7 @@ const loadCategorie = async () => {
     categorie.value = await serviziService.getCategorie()
   } catch (error) {
     console.error('Errore nel caricamento delle categorie:', error)
+    toast.error('Errore nel caricamento delle categorie')
   }
 }
 
@@ -246,12 +252,12 @@ onMounted(async () => {
         }
       } else {
         console.error('Servizio non trovato')
-        alert('Servizio non trovato')
+        toast.error('Servizio non trovato')
         router.push('/servizi')
       }
     } catch (error) {
       console.error('Errore nel caricamento del servizio:', error)
-      alert('Errore nel caricamento del servizio')
+      toast.error('Errore nel caricamento del servizio')
       router.push('/servizi')
     }
   }

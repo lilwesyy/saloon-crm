@@ -135,8 +135,10 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue';
 import { useClientiStore, Cliente } from '@/stores/clienti';
+import { useToast } from '@/composables/useToast';
 
 const clientiStore = useClientiStore();
+const toast = useToast();
 const searchTerm = ref('');
 const loading = ref(true);
 const filtroAttivo = ref('tutti');
@@ -195,6 +197,7 @@ onMounted(async () => {
     await clientiStore.fetchClienti();
   } catch (error) {
     console.error('Errore nel caricamento dei clienti:', error);
+    toast.error('Impossibile caricare la lista dei clienti');
   } finally {
     loading.value = false;
   }

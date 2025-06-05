@@ -236,10 +236,12 @@
 import { ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useClientiStore } from '@/stores/clienti';
+import { useToast } from '@/composables/useToast';
 
 const route = useRoute();
 const router = useRouter();
 const clientiStore = useClientiStore();
+const toast = useToast();
 
 const loading = ref(false);
 const isEditing = computed(() => !!route.params.id);
@@ -281,19 +283,23 @@ const handleSubmit = async () => {
     if (isEditing.value) {
       const clienteAggiornato = await clientiStore.updateCliente(route.params.id as string, cliente.value);
       clienteId = clienteAggiornato._id;
+      toast.success('Cliente aggiornato con successo');
     } else {
       const nuovoCliente = await clientiStore.createCliente(cliente.value);
       clienteId = nuovoCliente._id;
+      toast.success('Cliente creato con successo');
     }
     
     // Se è stata selezionata una foto, caricala
     if (fileToUpload.value && clienteId) {
       await clientiStore.uploadFoto(clienteId, fileToUpload.value);
+      toast.info('Foto profilo aggiornata');
     }
     
     router.push('/clienti');
   } catch (error) {
     console.error('Errore nel salvare il cliente:', error);
+    toast.error('Errore nel salvare il cliente: ' + (error.message || 'Errore sconosciuto'));
   } finally {
     loading.value = false;
   }

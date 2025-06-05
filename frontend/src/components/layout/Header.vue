@@ -14,7 +14,7 @@
       <!-- Logo/Title -->
       <div class="flex items-center">
         <h1 class="text-xl font-semibold text-gray-900">
-          Centro Estetico CRM
+          {{ settingsStore.businessName }}
         </h1>
       </div>
       
@@ -99,10 +99,12 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useAuthStore } from '@/stores/auth'
+import { useSettingsStore } from '@/stores/settings'
 
 const emit = defineEmits(['toggle-sidebar'])
 
 const authStore = useAuthStore()
+const settingsStore = useSettingsStore()
 const showUserMenu = ref(false)
 const userMenuRef = ref<HTMLElement>()
 
@@ -126,6 +128,11 @@ const handleClickOutside = (event: Event) => {
 
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
+  
+  // Carica le impostazioni del sistema se non sono già caricate
+  if (!settingsStore.loaded) {
+    settingsStore.fetchSystemSettings()
+  }
 })
 
 onUnmounted(() => {
