@@ -102,7 +102,8 @@
                   Appuntamenti Oggi
                 </dt>
                 <dd class="text-lg font-medium text-gray-900">
-                  {{ todayAppointmentsCount }}
+                  <span v-if="isLoading">...</span>
+                  <span v-else>{{ todayAppointmentsCount }}</span>
                 </dd>
               </dl>
             </div>
@@ -186,7 +187,7 @@
           <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">
             Prossimi Appuntamenti
           </h3>
-          <div class="space-y-3">
+          <div class="space-y-3" :class="{ 'max-h-40 overflow-y-auto': recentAppointments.length > 3 }">
             <div v-if="recentAppointments.length === 0" class="text-center py-4 text-gray-500">
               Nessun appuntamento in programma
             </div>
@@ -308,9 +309,11 @@ stats.value.totalClients = 150
 
 // Use real appointment data from the store
 const todayAppointments = computed(() => appuntamentiStore.appuntamentiOggi)
-const todayAppointmentsCount = computed(() => appuntamentiStore.appuntamentiOggi.length)
+const todayAppointmentsCount = computed(() => {
+  return appuntamentiStore.appuntamentiOggi.length
+})
 
-// Get recent appointments (next 5 appointments starting from today)
+// Get recent appointments (next 10 appointments starting from today)
 const recentAppointments = computed(() => {
   const today = new Date()
   today.setHours(0, 0, 0, 0)
@@ -318,10 +321,10 @@ const recentAppointments = computed(() => {
   return appuntamentiStore.appuntamenti
     .filter(app => {
       const appDate = new Date(app.dataOraInizio)
-      return appDate >= today && app.stato !== 'cancellato'
+      return appDate >= today && app.stato === 'confermato'
     })
     .sort((a, b) => new Date(a.dataOraInizio).getTime() - new Date(b.dataOraInizio).getTime())
-    .slice(0, 5)
+    .slice(0, 10)
     .map(app => ({
       id: app._id,
       cliente: app.cliente ? `${app.cliente.nome} ${app.cliente.cognome}` : 'Cliente non specificato',
@@ -376,28 +379,18 @@ const loadDashboardData = async () => {
   try {
     isLoading.value = true
     
-    // Load appointments data
-    await appuntamentiStore.fetchAppuntamenti()
+    // Load appointments data - increase limit to get all appointments
+    await appuntamentiStore.fetchAppuntamenti({ limit: 200 })
     
     // Get real client stats from API
-    console.log('Dashboard: Caricamento statistiche clienti...')
-    console.log('Dashboard: Token nel localStorage:', localStorage.getItem('token') ? 'presente' : 'assente')
-    
     const clienteStatistiche = await ClientiService.getStatistiche()
-    console.log('Dashboard: Statistiche ricevute:', clienteStatistiche)
-    console.log('Dashboard: Tipo di clienteStatistiche:', typeof clienteStatistiche)
-    console.log('Dashboard: clienteStatistiche.totale:', clienteStatistiche?.totale)
-    console.log('Dashboard: Tipo di totale:', typeof clienteStatistiche?.totale)
     
     // Ensure we have valid data
     if (clienteStatistiche && typeof clienteStatistiche.totale === 'number') {
       // Update stats with real data
       stats.value.totalClients = clienteStatistiche.totale // Real count from API
-      console.log('Dashboard: Stats aggiornate - totalClients:', stats.value.totalClients)
-      console.log('Dashboard: stats.value dopo aggiornamento:', stats.value)
     } else {
       console.warn('Dashboard: Dati statistiche non validi:', clienteStatistiche)
-      console.log('Dashboard: Condizione fallita - clienteStatistiche:', !!clienteStatistiche, 'typeof totale:', typeof clienteStatistiche?.totale)
     }
     
   } catch (error) {
@@ -408,8 +401,6 @@ const loadDashboardData = async () => {
 }
 
 onMounted(async () => {
-  console.log('Dashboard: Component mounted, starting loadDashboardData...')
   await loadDashboardData()
-  console.log('Dashboard: loadDashboardData completed, final stats:', stats.value)
 })
 </script>

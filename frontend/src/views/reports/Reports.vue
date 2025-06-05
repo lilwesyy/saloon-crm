@@ -117,9 +117,25 @@
 
       <!-- Servizi più Richiesti -->
       <div class="bg-white shadow-md rounded-lg p-6">
-        <h2 class="text-xl font-semibold mb-4">Servizi più Richiesti</h2>
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-xl font-semibold">Servizi più Richiesti</h2>
+          <div class="flex items-center gap-2">
+            <label for="maxServizi" class="text-sm font-medium text-gray-700">Mostra max:</label>
+            <select 
+              id="maxServizi"
+              v-model="maxServizi" 
+              @change="applicaFiltroServizi"
+              class="min-w-[80px] px-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="5">5</option>
+              <option value="10">10</option>
+              <option value="15">15</option>
+              <option value="20">20</option>
+            </select>
+          </div>
+        </div>
         <div class="space-y-4">
-          <div v-for="servizio in topServizi" :key="servizio.nome" class="flex items-center justify-between">
+          <div v-for="servizio in topServiziFiltered" :key="servizio.nome" class="flex items-center justify-between">
             <div class="flex-1">
               <div class="flex justify-between items-center mb-1">
                 <span class="text-sm font-medium text-gray-900">{{ servizio.nome }}</span>
@@ -128,7 +144,7 @@
               <div class="w-full bg-gray-200 rounded-full h-2">
                 <div 
                   class="bg-blue-600 h-2 rounded-full" 
-                  :style="{ width: `${(servizio.count / Math.max(...topServizi.map(s => s.count))) * 100}%` }"
+                  :style="{ width: `${(servizio.count / Math.max(...topServiziFiltered.map(s => s.count))) * 100}%` }"
                 ></div>
               </div>
             </div>
@@ -155,7 +171,23 @@
 
       <!-- Clienti più Fedeli -->
       <div class="bg-white shadow-md rounded-lg p-6">
-        <h2 class="text-xl font-semibold mb-4">Clienti più Fedeli</h2>
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-xl font-semibold">Clienti più Fedeli</h2>
+          <div class="flex items-center gap-2">
+            <label for="maxClienti" class="text-sm font-medium text-gray-700">Mostra max:</label>
+            <select 
+              id="maxClienti"
+              v-model="maxClienti" 
+              @change="applicaFiltroClienti"
+              class="min-w-[80px] px-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="5">5</option>
+              <option value="10">10</option>
+              <option value="15">15</option>
+              <option value="20">20</option>
+            </select>
+          </div>
+        </div>
         <div class="overflow-x-auto">
           <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
@@ -167,7 +199,7 @@
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
-              <tr v-for="cliente in topClienti" :key="cliente.id" class="hover:bg-gray-50">
+              <tr v-for="cliente in topClientiFiltered" :key="cliente._id" class="hover:bg-gray-50">
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                   {{ cliente.nome }} {{ cliente.cognome }}
                 </td>
@@ -192,7 +224,9 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import reportsService, { type ReportsData, type ReportsStats, type TopServizio, type AndamentoMensile, type TopCliente } from '@/services/reports.service'
+import { useToast } from '@/composables/useToast'
 
+const { success, error } = useToast()
 const loading = ref(true)
 
 const periodo = ref({
@@ -208,11 +242,23 @@ const stats = ref<ReportsStats>({
 })
 
 const topServizi = ref<TopServizio[]>([])
+const topServiziFiltered = ref<TopServizio[]>([])
+const maxServizi = ref(5)
 const andamentoMensile = ref<AndamentoMensile[]>([])
 const topClienti = ref<TopCliente[]>([])
+const topClientiFiltered = ref<TopCliente[]>([])
+const maxClienti = ref(5)
 
 const formatDate = (date: string) => {
   return new Date(date).toLocaleDateString('it-IT')
+}
+
+const applicaFiltroServizi = () => {
+  topServiziFiltered.value = topServizi.value.slice(0, maxServizi.value)
+}
+
+const applicaFiltroClienti = () => {
+  topClientiFiltered.value = topClienti.value.slice(0, maxClienti.value)
 }
 
 const applicaFiltri = async () => {
@@ -240,6 +286,10 @@ const fetchReports = async () => {
     andamentoMensile.value = data.andamentoMensile
     topClienti.value = data.topClienti
     
+    // Applica i filtri
+    applicaFiltroServizi()
+    applicaFiltroClienti()
+    
   } catch (error) {
     console.error('Errore nel caricamento dei reports:', error)
     alert('Errore nel caricamento dei reports')
@@ -249,7 +299,13 @@ const fetchReports = async () => {
 }
 
 const refreshData = async () => {
-  await fetchReports()
+  try {
+    await fetchReports()
+    success('Dati aggiornati con successo!', 3000)
+  } catch (err) {
+    console.error('Errore durante l\'aggiornamento:', err)
+    error('Errore durante l\'aggiornamento dei dati', 3000)
+  }
 }
 
 const exportReport = async () => {

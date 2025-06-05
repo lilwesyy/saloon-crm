@@ -76,8 +76,6 @@ export const useAuthStore = defineStore('auth', () => {
     const savedToken = localStorage.getItem('token')
     const savedUser = localStorage.getItem('user')
     
-    console.log('checkAuth: verifico token e utente', { tokenExist: !!savedToken, userExist: !!savedUser })
-    
     if (!savedToken) {
       console.log('checkAuth: nessun token trovato in localStorage')
       return false
@@ -88,7 +86,6 @@ export const useAuthStore = defineStore('auth', () => {
       token.value = savedToken
       
       if (savedUser) {
-        console.log('checkAuth: utente trovato in localStorage, non serve chiamare API')
         currentUser.value = JSON.parse(savedUser)
         return true
       }

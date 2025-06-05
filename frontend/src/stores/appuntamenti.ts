@@ -22,10 +22,17 @@ export const useAppuntamentiStore = defineStore('appuntamenti', () => {
   const totalAppuntamenti = computed(() => appuntamenti.value.length)
   
   const appuntamentiOggi = computed(() => {
-    const oggi = new Date().toISOString().split('T')[0]
+    const oggi = new Date().toISOString().split('T')[0] // Format: YYYY-MM-DD
+    
     return appuntamenti.value.filter(app => {
-      const dataApp = new Date(app.dataOraInizio).toISOString().split('T')[0]
-      return dataApp === oggi && app.stato !== 'cancellato'
+      // Solo appuntamenti confermati
+      if (app.stato !== 'confermato') return false
+      
+      // Handle both string and Date object formats
+      const appDate = new Date(app.dataOraInizio)
+      const appDateStr = appDate.toISOString().split('T')[0]
+      
+      return appDateStr === oggi
     })
   })
 
@@ -69,6 +76,7 @@ export const useAppuntamentiStore = defineStore('appuntamenti', () => {
     
     try {
       const response = await appuntamentiService.getAppuntamenti(params)
+      
       appuntamenti.value = response.appuntamenti
       pagination.value = response.pagination
       return response.appuntamenti

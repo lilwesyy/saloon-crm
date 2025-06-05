@@ -113,7 +113,7 @@
           </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
-          <tr v-for="operatore in operatori" :key="operatore._id">
+          <tr v-for="operatore in operatori" :key="operatore._id" class="hover:bg-gray-50 cursor-pointer" @click="$router.push(`/utenti/${operatore._id}`)">
             <td class="px-6 py-4 whitespace-nowrap">
               <div class="flex items-center">
                 <div class="flex-shrink-0 h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center">
@@ -163,14 +163,8 @@
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
               <div class="flex space-x-2 justify-end">
-                <router-link :to="`/utenti/${operatore._id}`" class="text-indigo-600 hover:text-indigo-900">
-                  <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                  </svg>
-                </router-link>
                 <button 
-                  @click="toggleAttivo(operatore)"
+                  @click.stop="toggleAttivo(operatore)"
                   class="text-gray-500 hover:text-gray-700"
                 >
                   <svg v-if="operatore.attivo" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
