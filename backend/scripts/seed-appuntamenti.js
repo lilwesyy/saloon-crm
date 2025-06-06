@@ -78,7 +78,7 @@ async function seedAppuntamenti() {
       const dataFine = new Date(dataInizio.getTime() + durataTotale * 60000);
       
       // Stati possibili per gli appuntamenti di oggi
-      const statiOggi = ['confermato', 'in_corso', 'completato'];
+      const statiOggi = ['confermato', 'prenotato', 'completato'];
       const statoRandom = statiOggi[Math.floor(Math.random() * statiOggi.length)];
       
       const appuntamento = {
@@ -149,12 +149,12 @@ async function seedAppuntamenti() {
     
     const completati = appuntamenti.filter(a => a.stato === 'completato').length;
     const confermati = appuntamenti.filter(a => a.stato === 'confermato').length;
-    const inCorso = appuntamenti.filter(a => a.stato === 'in_corso').length;
+    const prenotati = appuntamenti.filter(a => a.stato === 'prenotato').length;
     
     console.log(`📊 Statistiche:`);
     console.log(`   - Completati: ${completati}`);
     console.log(`   - Confermati: ${confermati}`);
-    console.log(`   - In corso: ${inCorso}`);
+    console.log(`   - Prenotati: ${prenotati}`);
 
   } catch (error) {
     console.error('❌ Errore durante il seeding degli appuntamenti:', error);

@@ -18,18 +18,21 @@ const createAdminUser = async () => {
 
     console.log('Connesso al database MongoDB');
 
-    // Verifica se esiste già un admin
-    const existingAdmin = await User.findOne({ ruolo: 'admin' });
+    // Verifica quanti admin esistono già
+    const existingAdmins = await User.find({ ruolo: 'admin' });
     
-    if (existingAdmin) {
-      console.log('❌ Esiste già un utente amministratore:', existingAdmin.email);
-      process.exit(0);
+    if (existingAdmins.length > 0) {
+      console.log(`ℹ️  Esistono già ${existingAdmins.length} amministratori nel sistema:`);
+      existingAdmins.forEach((admin, index) => {
+        console.log(`  ${index + 1}. ${admin.nome} ${admin.cognome} (${admin.email})`);
+      });
+      console.log('✨ Creazione di un nuovo amministratore...');
     }
 
     // Crea l'utente amministratore predefinito
     const adminUser = new User({
-      nome: 'Admin',
-      cognome: 'System',
+      nome: 'Amministratore',
+      cognome: 'Sistema',
       email: 'admin@estetica.com',
       password: 'admin123', // Password predefinita - CAMBIARE IN PRODUZIONE!
       ruolo: 'admin',
