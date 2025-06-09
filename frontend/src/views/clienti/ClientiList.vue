@@ -1,53 +1,61 @@
 <template>
-  <div class="container mx-auto px-4 py-6">
-    <div class="flex justify-between items-center mb-6">
-      <h1 class="text-3xl font-bold text-gray-900">Clienti</h1>
-      <div class="flex gap-2">
-        <router-link 
-          to="/clienti/ricerca" 
-          class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition-colors"
-        >
-          Ricerca Avanzata
-        </router-link>
-        <router-link 
-          to="/clienti/nuovo" 
-          class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors inline-flex items-center gap-2"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-          </svg>
-          Nuovo Cliente
-        </router-link>
+  <div class="space-y-6">
+    <!-- Header Section -->
+    <div class="sm:flex sm:items-center sm:justify-between">
+      <div class="sm:flex-auto">
+        <h1 class="text-2xl font-bold text-gray-900">Clienti</h1>
+        <p class="mt-2 text-sm text-gray-700">Gestisci i tuoi clienti e le loro informazioni</p>
+      </div>
+      <div class="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
+        <div class="flex gap-3">
+          <router-link 
+            to="/clienti/ricerca" 
+            class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+          >
+            Ricerca Avanzata
+          </router-link>
+          <router-link 
+            to="/clienti/nuovo" 
+            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+            Nuovo Cliente
+          </router-link>
+        </div>
       </div>
     </div>
 
-    <div class="bg-white shadow-md rounded-lg overflow-hidden">
-      <div class="p-6">
+    <!-- Content Section -->
+    <div class="bg-white shadow rounded-lg overflow-hidden">
+      <div class="px-4 py-5 sm:p-6">
+        <!-- Filtri e ricerca -->
         <div class="mb-6">
-          <!-- Filtri e ricerca -->
           <div class="flex flex-wrap gap-4">
-            <div class="flex-grow">          <div class="relative">
-            <input 
-              v-model="searchTerm" 
-              type="text" 
-              placeholder="Cerca clienti..." 
-              class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
-              </svg>
-            </div>
-            <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
-              <router-link 
-                to="/clienti/ricerca" 
-                class="text-sm text-blue-600 hover:text-blue-800"
-                title="Ricerca avanzata"
-              >
-                Avanzata
-              </router-link>
-            </div>
-          </div>
+            <div class="flex-grow">
+              <div class="relative">
+                <input 
+                  v-model="searchTerm" 
+                  type="text" 
+                  placeholder="Cerca clienti..." 
+                  class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                  </svg>
+                </div>
+                <div class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                  <router-link 
+                    to="/clienti/ricerca" 
+                    class="text-sm text-blue-600 hover:text-blue-800"
+                    title="Ricerca avanzata"
+                  >
+                    Avanzata
+                  </router-link>
+                </div>
+              </div>
             </div>
             <div class="flex gap-2">
               <button 

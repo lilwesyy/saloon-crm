@@ -1,18 +1,29 @@
 <template>
-  <div class="container mx-auto px-4 py-6">
-    <div class="flex justify-between items-center mb-6">
-      <h1 class="text-3xl font-bold text-gray-900">Pagamenti</h1>
-      <button 
-        @click="exportData"
-        class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors"
-      >
-        Esporta Dati
-      </button>
+  <div class="space-y-6">
+    <!-- Header Section -->
+    <div class="sm:flex sm:items-center sm:justify-between">
+      <div class="sm:flex-auto">
+        <h1 class="text-2xl font-bold text-gray-900">Pagamenti</h1>
+        <p class="mt-2 text-sm text-gray-700">Gestisci i pagamenti e le transazioni del centro</p>
+      </div>
+      <div class="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
+        <button 
+          @click="exportData"
+          class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          Esporta Dati
+        </button>
+      </div>
     </div>
     
-    <div class="bg-white shadow-md rounded-lg overflow-hidden">
-      <div class="p-6">
-        <div class="mb-6 grid gap-4 md:grid-cols-3">
+    <!-- Filters Section -->
+    <div class="bg-white overflow-hidden shadow rounded-lg">
+      <div class="px-4 py-5 sm:p-6">
+        <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Filtri</h3>
+        <div class="grid gap-5 md:grid-cols-3">
           <div>
             <label for="dataInizio" class="block text-sm font-medium text-gray-700 mb-2">Data Inizio</label>
             <input 
@@ -45,15 +56,31 @@
             </select>
           </div>
         </div>
-        
-        <div v-if="loading" class="text-center py-4">
-          Caricamento pagamenti...
+      </div>
+    </div>
+
+    <!-- Content Section -->
+    <div class="bg-white overflow-hidden shadow rounded-lg">
+      <div class="px-4 py-5 sm:p-6">
+        <!-- Loading State -->
+        <div v-if="loading" class="text-center py-12">
+          <svg class="mx-auto h-12 w-12 text-gray-400 animate-spin" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <p class="mt-2 text-sm text-gray-500">Caricamento pagamenti...</p>
         </div>
         
-        <div v-else-if="pagamentiFiltrati.length === 0" class="text-center py-4 text-gray-500">
-          Nessun pagamento trovato
+        <!-- Empty State -->
+        <div v-else-if="pagamentiFiltrati.length === 0" class="text-center py-12">
+          <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <h3 class="mt-2 text-sm font-medium text-gray-900">Nessun pagamento trovato</h3>
+          <p class="mt-1 text-sm text-gray-500">Modifica i filtri per visualizzare i pagamenti.</p>
         </div>
         
+        <!-- Table -->
         <div v-else>
           <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
@@ -93,26 +120,30 @@
               </tbody>
             </table>
           </div>
-          
-          <div class="mt-6 bg-gray-50 p-4 rounded-lg">
-            <div class="grid gap-4 md:grid-cols-4">
-              <div class="text-center">
-                <p class="text-sm text-gray-600">Totale Pagamenti</p>
-                <p class="text-2xl font-bold text-gray-900">€{{ totali.totale.toFixed(2) }}</p>
-              </div>
-              <div class="text-center">
-                <p class="text-sm text-gray-600">Pagati</p>
-                <p class="text-2xl font-bold text-green-600">€{{ totali.pagati.toFixed(2) }}</p>
-              </div>
-              <div class="text-center">
-                <p class="text-sm text-gray-600">In Attesa</p>
-                <p class="text-2xl font-bold text-yellow-600">€{{ totali.inAttesa.toFixed(2) }}</p>
-              </div>
-              <div class="text-center">
-                <p class="text-sm text-gray-600">Scaduti</p>
-                <p class="text-2xl font-bold text-red-600">€{{ totali.scaduti.toFixed(2) }}</p>
-              </div>
-            </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Summary Section -->
+    <div v-if="!loading && pagamentiFiltrati.length > 0" class="bg-white overflow-hidden shadow rounded-lg">
+      <div class="px-4 py-5 sm:p-6">
+        <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Riepilogo</h3>
+        <div class="grid gap-5 md:grid-cols-4">
+          <div class="text-center">
+            <p class="text-sm text-gray-600">Totale Pagamenti</p>
+            <p class="text-2xl font-bold text-gray-900">€{{ totali.totale.toFixed(2) }}</p>
+          </div>
+          <div class="text-center">
+            <p class="text-sm text-gray-600">Pagati</p>
+            <p class="text-2xl font-bold text-green-600">€{{ totali.pagati.toFixed(2) }}</p>
+          </div>
+          <div class="text-center">
+            <p class="text-sm text-gray-600">In Attesa</p>
+            <p class="text-2xl font-bold text-yellow-600">€{{ totali.inAttesa.toFixed(2) }}</p>
+          </div>
+          <div class="text-center">
+            <p class="text-sm text-gray-600">Scaduti</p>
+            <p class="text-2xl font-bold text-red-600">€{{ totali.scaduti.toFixed(2) }}</p>
           </div>
         </div>
       </div>
@@ -121,10 +152,29 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue';
+
+interface Cliente {
+  nome: string
+  cognome: string
+}
+
+interface Servizio {
+  nome: string
+}
+
+interface Pagamento {
+  id: string
+  data: string
+  cliente: Cliente
+  servizio: Servizio
+  importo: number
+  stato: 'pagato' | 'in_attesa' | 'scaduto'
+  metodo: 'contanti' | 'carta' | 'bonifico'
+}
 
 const loading = ref(true)
-const pagamenti = ref([])
+const pagamenti = ref<Pagamento[]>([])
 
 const filtri = ref({
   dataInizio: '',
@@ -170,7 +220,7 @@ const formatStato = (stato: string) => {
     in_attesa: 'In Attesa',
     scaduto: 'Scaduto'
   }
-  return stati[stato] || stato
+  return stati[stato as keyof typeof stati] || stato
 }
 
 const formatMetodo = (metodo: string) => {
@@ -179,7 +229,7 @@ const formatMetodo = (metodo: string) => {
     carta: 'Carta',
     bonifico: 'Bonifico'
   }
-  return metodi[metodo] || metodo
+  return metodi[metodo as keyof typeof metodi] || metodo
 }
 
 const getStatoColor = (stato: string) => {
@@ -188,13 +238,15 @@ const getStatoColor = (stato: string) => {
     in_attesa: 'bg-yellow-100 text-yellow-800',
     scaduto: 'bg-red-100 text-red-800'
   }
-  return colori[stato] || 'bg-gray-100 text-gray-800'
+  return colori[stato as keyof typeof colori] || 'bg-gray-100 text-gray-800'
 }
 
 const fetchPagamenti = async () => {
   loading.value = true
   try {
     // TODO: Implementare chiamata API
+    // Simulazione dati per demo
+    await new Promise(resolve => setTimeout(resolve, 1000))
     pagamenti.value = []
   } catch (error) {
     console.error('Errore nel caricamento dei pagamenti:', error)

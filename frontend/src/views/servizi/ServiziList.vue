@@ -1,181 +1,222 @@
 <template>
-  <div>
-    <div class="container mx-auto px-4 py-6">
-      <div class="flex justify-between items-center mb-6">
-        <h1 class="text-3xl font-bold text-gray-900">Servizi</h1>
+  <div class="space-y-6">
+    <!-- Header Section -->
+    <div class="sm:flex sm:items-center sm:justify-between">
+      <div>
+        <h1 class="text-2xl font-bold text-gray-900">Servizi</h1>
+        <p class="mt-2 text-sm text-gray-700">Gestisci i servizi offerti dal tuo centro</p>
+      </div>
+      <div class="mt-4 sm:mt-0 sm:flex-none">
         <router-link 
           to="/servizi/nuovo" 
-          class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors inline-flex items-center gap-2"
+          class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
           </svg>
           Nuovo Servizio
         </router-link>
       </div>
+    </div>
 
-    <!-- Filtri con layout responsive migliorato -->
-    <div class="bg-white shadow-sm rounded-xl p-4 mb-6">
-      <div class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-        <!-- Campo ricerca con span maggiore su schermi grandi -->
-        <div class="lg:col-span-2">
-          <label for="searchInput" class="block text-sm font-medium text-gray-700 mb-2">Cerca servizi:</label>
-          <div class="relative">
-            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
+    <!-- Filters Section -->
+    <div class="bg-white overflow-hidden shadow rounded-lg">
+      <div class="px-4 py-5 sm:p-6">
+        <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Filtri</h3>
+        <div class="flex flex-col lg:flex-row gap-4 items-start lg:items-end">
+          <!-- Campo ricerca -->
+          <div class="flex-1 min-w-0">
+            <label for="searchInput" class="block text-sm font-medium text-gray-700 mb-2">Cerca servizi</label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+              <input 
+                id="searchInput" 
+                type="text" 
+                v-model="filtroRicerca" 
+                placeholder="Cerca per nome servizio..."
+                class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              />
             </div>
-            <input 
-              id="searchInput" 
-              type="text" 
-              v-model="filtroRicerca" 
-              @input="applicaFiltro" 
-              placeholder="Cerca per nome servizio..."
-              class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-            />
+          </div>
+          
+          <!-- Filtri in riga -->
+          <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-end">
+            <!-- Filtro categoria -->
+            <div class="min-w-[150px]">
+              <label for="categoriaFiltro" class="block text-sm font-medium text-gray-700 mb-2">Categoria</label>
+              <select
+                id="categoriaFiltro"
+                v-model="filtroCategoria"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              >
+                <option value="">Tutte</option>
+                <option v-for="cat in categorie" :key="cat" :value="cat">{{ cat }}</option>
+              </select>
+            </div>
+            
+            <!-- Filtro stato -->
+            <div class="min-w-[130px]">
+              <label for="statoFiltro" class="block text-sm font-medium text-gray-700 mb-2">Stato</label>
+              <select 
+                id="statoFiltro"
+                v-model="filtroStato"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              >
+                <option value="">Tutti</option>
+                <option value="attivo">Solo attivi</option>
+                <option value="inattivo">Solo inattivi</option>
+              </select>
+            </div>
+
+            <!-- Filtro prenotabilità online -->
+            <div class="min-w-[160px]">
+              <label for="prenotabileFiltro" class="block text-sm font-medium text-gray-700 mb-2">Prenotabilità</label>
+              <select 
+                id="prenotabileFiltro"
+                v-model="filtroPrenotabile"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              >
+                <option value="">Tutti</option>
+                <option value="si">Solo online</option>
+                <option value="no">Non online</option>
+              </select>
+            </div>
           </div>
         </div>
-        
-        <!-- Filtro categoria -->
-        <div>
-          <label for="categoriaFiltro" class="block text-sm font-medium text-gray-700 mb-2">Categoria:</label>
-          <select 
-            id="categoriaFiltro"
-            v-model="filtroCategoria"
-            @change="applicaFiltro"
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-          >
-            <option value="">Tutte</option>
-            <option v-for="cat in categorie" :key="cat" :value="cat">{{ cat }}</option>
-          </select>
-        </div>
-        
-        <!-- Filtro stato -->
-        <div>
-          <label for="statoFiltro" class="block text-sm font-medium text-gray-700 mb-2">Stato:</label>
-          <select 
-            id="statoFiltro"
-            v-model="filtroStato"
-            @change="applicaFiltro"
-            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-          >
-            <option value="">Tutti</option>
-            <option value="attivo">Solo attivi</option>
-            <option value="inattivo">Solo inattivi</option>
-          </select>
-        </div>
 
-        <!-- Filtro prenotabilità online - occupa tutta la riga su mobile -->
-        <div class="sm:col-span-2 lg:col-span-4">
-          <label for="prenotabileFiltro" class="block text-sm font-medium text-gray-700 mb-2">Prenotabilità online:</label>
-          <select 
-            id="prenotabileFiltro"
-            v-model="filtroPrenotabile"
-            @change="applicaFiltro"
-            class="w-full sm:w-auto px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-          >
-            <option value="">Tutti</option>
-            <option value="si">Solo prenotabili online</option>
-            <option value="no">Non prenotabili online</option>
-          </select>
+        <!-- Statistiche veloci -->
+        <div class="mt-6 border-t border-gray-200 pt-4">
+          <div class="grid grid-cols-3 gap-6">
+            <div class="text-center">
+              <div class="text-2xl font-bold text-blue-600">{{ serviziFiltrati.length }}</div>
+              <div class="text-sm text-gray-500">Servizi trovati</div>
+            </div>
+            <div class="text-center">
+              <div class="text-2xl font-bold text-green-600">{{ serviziAttivi }}</div>
+              <div class="text-sm text-gray-500">Attivi</div>
+            </div>
+            <div class="text-center">
+              <div class="text-2xl font-bold text-purple-600">{{ serviziPrenotabili }}</div>
+              <div class="text-sm text-gray-500">Prenotabili online</div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
     
-    <div class="bg-white shadow-md rounded-lg overflow-hidden">
-      <div class="p-6">
-        <div v-if="loading" class="text-center py-4">
-          Caricamento servizi...
+    <!-- Content Section -->
+    <div class="bg-white overflow-hidden shadow rounded-lg">
+      <div class="px-4 py-5 sm:p-6">
+        <!-- Loading State -->
+        <div v-if="loading" class="text-center py-8">
+          <svg class="animate-spin h-8 w-8 mx-auto text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          <p class="mt-2 text-gray-600">Caricamento servizi...</p>
+        </div>
+
+        <!-- Empty State -->
+        <div v-else-if="serviziFiltrati.length === 0" class="text-center py-12">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+          </svg>
+          <h3 class="text-lg font-medium text-gray-900 mb-2">Nessun servizio trovato</h3>
+          <p class="text-gray-500 mb-6">Non ci sono servizi che corrispondono ai criteri di ricerca.</p>
+          <router-link 
+            to="/servizi/nuovo"
+            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+            Crea il primo servizio
+          </router-link>
         </div>
         
-        <div v-else-if="serviziFiltrati.length === 0" class="text-center py-4 text-gray-500">
-          Nessun servizio trovato
-        </div>
-        
-        <!-- Grid responsive con auto-fit e minmax per una migliore responsività -->
-        <div v-else class="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+        <!-- Services Grid -->
+        <div v-else class="grid gap-5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           <div 
             v-for="servizio in serviziFiltrati" 
             :key="servizio._id"
-            class="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 flex flex-col min-h-[280px] max-w-full"
+            class="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-all duration-300 flex flex-col"
             :class="{'border-l-4 border-l-green-500': servizio.attivo, 'border-l-4 border-l-gray-300': !servizio.attivo}"
           >
-            <!-- Header della card con layout migliorato -->
-            <div class="p-4 pb-2 flex-shrink-0">
-              <div class="flex justify-between items-start mb-2">
-                <h3 class="font-semibold text-lg leading-tight flex-1 mr-2 break-words">{{ servizio.nome }}</h3>
+            <!-- Card Header -->
+            <div class="p-5 pb-3 flex-shrink-0">
+              <div class="flex justify-between items-start mb-3">
+                <h3 class="font-semibold text-lg leading-tight flex-1 mr-2 text-gray-900">{{ servizio.nome }}</h3>
                 <div class="flex items-center flex-shrink-0 ml-2">
                   <span 
-                    v-if="servizio.attivo" 
-                    class="inline-block w-2 h-2 rounded-full bg-green-500 mr-2"
-                    title="Servizio attivo"
-                  ></span>
-                  <span 
-                    v-else 
-                    class="inline-block w-2 h-2 rounded-full bg-gray-300 mr-2"
-                    title="Servizio non attivo"
-                  ></span>
-                  <span 
-                    v-if="servizio.prenotabileOnline" 
-                    class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full font-medium whitespace-nowrap"
-                    title="Prenotabile online"
+                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                    :class="servizio.attivo ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'"
                   >
-                    Online
+                    {{ servizio.attivo ? 'Attivo' : 'Inattivo' }}
                   </span>
                 </div>
               </div>
               
-              <!-- Categoria badge -->
-              <div class="mb-2">
+              <!-- Category and Online Badge -->
+              <div class="flex items-center justify-between mb-3">
                 <span class="inline-block bg-gray-100 text-gray-700 px-2 py-1 rounded-full text-xs font-medium">
                   {{ servizio.categoria }}
+                </span>
+                <span 
+                  v-if="servizio.prenotabileOnline" 
+                  class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9v-9m0-9v9" />
+                  </svg>
+                  Online
                 </span>
               </div>
             </div>
             
-            <!-- Contenuto della card -->
-            <div class="px-4 flex-1 flex flex-col">
-              <p class="text-gray-600 text-sm mb-3 line-clamp-2 flex-1">
+            <!-- Card Content -->
+            <div class="px-5 flex-1 flex flex-col">
+              <p class="text-gray-600 text-sm mb-4 line-clamp-2 flex-1">
                 {{ servizio.descrizione || 'Nessuna descrizione disponibile' }}
               </p>
               
-              <!-- Prezzo e durata -->
-              <div class="mt-auto">
-                <div class="flex justify-between items-end mb-4">
-                  <div>
-                    <p class="text-2xl font-bold text-green-600">€{{ servizio.prezzo.toFixed(2) }}</p>
+              <!-- Price and Duration -->
+              <div class="flex justify-between items-end mb-4">
+                <div>
+                  <div class="text-2xl font-bold text-green-600">€{{ servizio.prezzo.toFixed(2) }}</div>
+                </div>
+                <div class="text-right">
+                  <div class="flex items-center text-sm text-gray-500 justify-end mb-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>{{ servizio.durata }} min</span>
                   </div>
-                  <div class="text-right">
-                    <div class="flex items-center text-xs text-gray-500 justify-end">
-                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                      <span>{{ servizio.durata }} min</span>
-                    </div>
-                    <div v-if="servizio.tempoRecupero > 0" class="text-xs text-orange-500 mt-1">
-                      Recupero: +{{ servizio.tempoRecupero }} min
-                    </div>
+                  <div v-if="servizio.tempoRecupero > 0" class="text-xs text-orange-500">
+                    Recupero: +{{ servizio.tempoRecupero }} min
                   </div>
                 </div>
               </div>
             </div>
             
-            <!-- Footer della card con pulsanti -->
-            <div class="p-4 pt-0 flex-shrink-0">
-              <div class="flex gap-2">
+            <!-- Card Footer -->
+            <div class="p-5 pt-0 flex-shrink-0 border-t border-gray-100">
+              <div class="flex gap-3">
                 <router-link 
                   :to="`/servizi/${servizio._id}`"
-                  class="flex-1 bg-blue-600 text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors text-center flex items-center justify-center"
+                  class="flex-1 bg-blue-600 text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition-colors text-center flex items-center justify-center"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                   </svg>
-                  <span class="hidden sm:inline">Modifica</span>
+                  Modifica
                 </router-link>
                 <button 
                   @click="deleteServizio(servizio._id, servizio.nome)"
-                  class="flex-shrink-0 bg-red-600 text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-red-700 transition-colors flex items-center justify-center"
+                  class="flex-shrink-0 bg-red-600 text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-red-700 transition-colors flex items-center justify-center"
                   title="Elimina servizio"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -188,38 +229,57 @@
         </div>
       </div>
     </div>
-  </div>
-  
-  <!-- Modal per conferma eliminazione servizio -->
-  <DeleteConfirmModal
-    :modelValue="showDeleteModal"
-    title="Conferma Eliminazione"
-    :message="`Sei sicuro di voler eliminare il servizio ${servicioToDeleteName}?`"
-    warningText="L'eliminazione di un servizio potrebbe impattare sugli appuntamenti esistenti."
-    confirmButtonText="Elimina Servizio"
-    @confirm="confirmDelete"
-    @cancel="cancelDelete"
-  />
+
+    <!-- Delete Confirmation Modal -->
+    <DeleteConfirmModal
+      :modelValue="showDeleteModal"
+      title="Conferma Eliminazione"
+      :message="`Sei sicuro di voler eliminare il servizio ${servizioToDeleteName}?`"
+      warningText="L'eliminazione di un servizio potrebbe impattare sugli appuntamenti esistenti."
+      confirmButtonText="Elimina Servizio"
+      @confirm="confirmDelete"
+      @cancel="cancelDelete"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
-import serviziService, { type Servizio } from '@/services/servizi.service'
-import { useToast } from '@/composables/useToast'
 import DeleteConfirmModal from '@/components/common/DeleteConfirmModal.vue'
+import serviziService from '@/services/servizi.service'
+import { useToast } from '@/composables/useToast'
 
+// Type definition
+interface Servizio {
+  _id: string
+  nome: string
+  descrizione?: string
+  prezzo: number
+  durata: number
+  categoria: string
+  attivo: boolean
+  prenotabileOnline: boolean
+  tempoRecupero: number
+}
+
+// Reactive data
 const toast = useToast()
 const loading = ref(true)
 const servizi = ref<Servizio[]>([])
 const serviziOriginali = ref<Servizio[]>([])
 const categorie = ref<string[]>([])
+
+// Filtri
 const filtroRicerca = ref('')
 const filtroCategoria = ref('')
 const filtroStato = ref('')
 const filtroPrenotabile = ref('')
+const showDeleteModal = ref(false)
+const servizioToDelete = ref<string | null>(null)
+const servizioToDeleteName = ref<string | null>(null)
 
-const serviziFiltrati = computed(() => {
+// Computed properties
+const serviziFiltrati = computed<Servizio[]>(() => {
   let risultato = [...serviziOriginali.value]
   
   // Filtra per testo di ricerca
@@ -257,11 +317,15 @@ const serviziFiltrati = computed(() => {
   return risultato
 })
 
-const applicaFiltro = () => {
-  // Il computed property serviziFiltrati si aggiorna automaticamente
-  // Non è necessario fare nulla qui, ma manteniamo la funzione per compatibilità
-}
+const serviziAttivi = computed(() => {
+  return serviziFiltrati.value.filter(s => s.attivo).length
+})
 
+const serviziPrenotabili = computed(() => {
+  return serviziFiltrati.value.filter(s => s.prenotabileOnline).length
+})
+
+// Methods
 const fetchServizi = async () => {
   loading.value = true
   try {
@@ -292,33 +356,31 @@ const fetchCategorie = async () => {
   }
 }
 
-const showDeleteModal = ref(false);
-const servicioToDelete = ref<string | null>(null);
-const servicioToDeleteName = ref<string | null>(null);
-
 const deleteServizio = (id: string, nome: string) => {
-  servicioToDelete.value = id;
-  servicioToDeleteName.value = nome;
-  showDeleteModal.value = true;
-};
+  servizioToDelete.value = id
+  servizioToDeleteName.value = nome
+  showDeleteModal.value = true
+}
 
 const confirmDelete = async () => {
-  if (servicioToDelete.value) {
+  if (servizioToDelete.value) {
     try {
-      await serviziService.deleteServizio(servicioToDelete.value)
+      await serviziService.deleteServizio(servizioToDelete.value)
       toast.success('Servizio eliminato con successo')
       await fetchServizi() // Ricarica la lista dopo l'eliminazione
     } catch (error: any) {
       console.error('Errore nell\'eliminazione del servizio:', error)
       toast.error('Errore nell\'eliminazione del servizio: ' + (error.response?.data?.message || error.message || 'Errore sconosciuto'))
     } finally {
-      showDeleteModal.value = false;
+      showDeleteModal.value = false
     }
   }
 }
 
-const cancelDelete = () => {
-  showDeleteModal.value = false;
+const cancelDelete = (): void => {
+  showDeleteModal.value = false
+  servizioToDelete.value = null
+  servizioToDeleteName.value = null
 }
 
 onMounted(async () => {

@@ -1,112 +1,141 @@
 <template>
-  <div class="sala-management">
-    <div class="page-header">
-      <h1 class="page-title">
-        <i class="fas fa-door-open"></i>
-        Gestione Sale
-      </h1>
-      <p class="page-subtitle">
-        Monitora e gestisci l'utilizzo delle sale del centro estetico
-      </p>
-    </div>
-
-    <!-- Dashboard Overview -->
-    <div class="dashboard-cards">
-      <div class="card overview-card">
-        <div class="card-icon">
-          <i class="fas fa-chart-pie"></i>
-        </div>
-        <div class="card-content">
-          <h3>Utilizzo Oggi</h3>
-          <p class="metric">{{ utilizzoOggi }}%</p>
-        </div>
+  <div class="space-y-6">
+    <!-- Header Section -->
+    <div class="sm:flex sm:items-center sm:justify-between">
+      <div class="sm:flex-auto">
+        <h1 class="text-2xl font-bold text-gray-900">Gestione Sale</h1>
+        <p class="mt-2 text-sm text-gray-700">Monitora e gestisci l'utilizzo delle sale del centro estetico</p>
       </div>
-      
-      <div class="card overview-card">
-        <div class="card-icon">
-          <i class="fas fa-clock"></i>
-        </div>
-        <div class="card-content">
-          <h3>Sale Occupate</h3>
-          <p class="metric">{{ saleOccupate }}/{{ totaleSale }}</p>
-        </div>
-      </div>
-      
-      <div class="card overview-card">
-        <div class="card-icon">
-          <i class="fas fa-calendar-day"></i>
-        </div>
-        <div class="card-content">
-          <h3>Appuntamenti Oggi</h3>
-          <p class="metric">{{ appuntamentiOggi }}</p>
-        </div>
+      <div class="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
+        <button 
+          @click="aggiornaStatistiche" 
+          class="inline-flex items-center bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+          :disabled="loading"
+        >
+          <i class="fas fa-sync-alt mr-2" :class="{ 'fa-spin': loading }"></i>
+          Aggiorna
+        </button>
       </div>
     </div>
 
-    <!-- Main Content -->
-    <div class="main-content">
-      <!-- Sale Grid -->
-      <div class="section">
-        <div class="section-header">
-          <h2>
-            <i class="fas fa-list"></i>
-            Sale Disponibili
-          </h2>
-          <div class="controls">
-            <button 
-              @click="aggiornaStatistiche" 
-              class="btn btn-primary"
-              :disabled="loading"
-            >
-              <i class="fas fa-sync-alt" :class="{ 'fa-spin': loading }"></i>
-              Aggiorna
-            </button>
+    <!-- Statistiche rapide -->
+    <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="p-5">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <div class="p-3 rounded-full bg-blue-100">
+                <i class="fas fa-chart-pie text-blue-600 w-6 h-6"></i>
+              </div>
+            </div>
+            <div class="ml-5 w-0 flex-1">
+              <dl>
+                <dt class="text-sm font-medium text-gray-500 truncate">
+                  Utilizzo Oggi
+                </dt>
+                <dd class="text-lg font-medium text-gray-900">
+                  {{ utilizzoOggi }}%
+                </dd>
+              </dl>
+            </div>
           </div>
         </div>
+      </div>
+      
+      <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="p-5">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <div class="p-3 rounded-full bg-green-100">
+                <i class="fas fa-clock text-green-600 w-6 h-6"></i>
+              </div>
+            </div>
+            <div class="ml-5 w-0 flex-1">
+              <dl>
+                <dt class="text-sm font-medium text-gray-500 truncate">
+                  Sale Occupate
+                </dt>
+                <dd class="text-lg font-medium text-gray-900">
+                  {{ saleOccupate }}/{{ totaleSale }}
+                </dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="bg-white overflow-hidden shadow rounded-lg">
+        <div class="p-5">
+          <div class="flex items-center">
+            <div class="flex-shrink-0">
+              <div class="p-3 rounded-full bg-purple-100">
+                <i class="fas fa-calendar-day text-purple-600 w-6 h-6"></i>
+              </div>
+            </div>
+            <div class="ml-5 w-0 flex-1">
+              <dl>
+                <dt class="text-sm font-medium text-gray-500 truncate">
+                  Appuntamenti Oggi
+                </dt>
+                <dd class="text-lg font-medium text-gray-900">
+                  {{ appuntamentiOggi }}
+                </dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Lista sale -->
+    <div class="bg-white shadow rounded-lg overflow-hidden">
+      <div class="px-4 py-5 sm:p-6">
+        <h3 class="text-lg leading-6 font-medium text-gray-900 mb-6">Sale Disponibili</h3>
         
-        <div class="sale-grid">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           <div 
             v-for="sala in sale" 
             :key="sala.id"
-            class="sala-card"
+            class="bg-white border-2 rounded-lg p-4 transition-all duration-200 hover:shadow-md"
             :class="{ 
-              'occupata': sala.occupata,
-              'disponibile': !sala.occupata 
+              'border-red-200 bg-red-50': sala.occupata,
+              'border-green-200 bg-green-50': !sala.occupata 
             }"
           >
-            <div class="sala-header">
-              <h3>{{ sala.nome }}</h3>
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="text-lg font-medium text-gray-900">{{ sala.nome }}</h3>
               <span 
-                class="status-badge"
+                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
                 :class="{ 
-                  'disponibile': !sala.occupata,
-                  'occupata': sala.occupata 
+                  'bg-green-100 text-green-800': !sala.occupata,
+                  'bg-red-100 text-red-800': sala.occupata 
                 }"
               >
                 {{ sala.occupata ? 'Occupata' : 'Disponibile' }}
               </span>
             </div>
             
-            <div class="sala-details">
-              <p class="description">{{ sala.descrizione }}</p>
-              <div class="sala-specs">
-                <span class="spec">
-                  <i class="fas fa-users"></i>
+            <div class="space-y-3">
+              <p class="text-sm text-gray-600">{{ sala.descrizione }}</p>
+              
+              <div class="space-y-2">
+                <div class="flex items-center text-sm text-gray-500">
+                  <i class="fas fa-users text-gray-600 w-4 mr-2"></i>
                   {{ sala.capacita }} persone
-                </span>
-                <span class="spec">
-                  <i class="fas fa-tools"></i>
+                </div>
+                <div class="flex items-center text-sm text-gray-500">
+                  <i class="fas fa-tools text-gray-600 w-4 mr-2"></i>
                   {{ sala.attrezzature.length }} attrezzature
-                </span>
+                </div>
               </div>
               
-              <div class="servizi-supportati">
-                <h4>Servizi Supportati:</h4>
-                <div class="servizi-tags">
+              <div>
+                <h4 class="text-sm font-medium text-gray-900 mb-2">Servizi Supportati:</h4>
+                <div class="flex flex-wrap gap-1">
                   <span 
                     v-for="servizio in sala.serviziSupportati" 
                     :key="servizio"
-                    class="servizio-tag"
+                    class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-blue-100 text-blue-800"
                   >
                     {{ servizio }}
                   </span>
@@ -114,158 +143,157 @@
               </div>
             </div>
             
-            <div class="sala-actions">
+            <div class="flex space-x-2 mt-4 pt-4 border-t border-gray-200">
               <button 
                 @click="visualizzaPianificazione(sala.id)"
-                class="btn btn-outline"
+                class="flex-1 inline-flex items-center justify-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
               >
-                <i class="fas fa-calendar"></i>
+                <i class="fas fa-calendar mr-2"></i>
                 Pianificazione
               </button>
               <button 
                 @click="visualizzaStatistiche(sala.id)"
-                class="btn btn-outline"
+                class="flex-1 inline-flex items-center justify-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
               >
-                <i class="fas fa-chart-bar"></i>
+                <i class="fas fa-chart-bar mr-2"></i>
                 Statistiche
               </button>
             </div>
           </div>
         </div>
       </div>
+    </div>
 
-      <!-- Strumenti di Gestione -->
-      <div class="section">
-        <div class="section-header">
-          <h2>
-            <i class="fas fa-tools"></i>
-            Strumenti di Gestione
-          </h2>
-        </div>
-        
-        <div class="tools-grid">
+    <!-- Strumenti di Gestione -->
+    <div class="bg-white shadow rounded-lg">
+      <div class="px-4 py-5 sm:p-6">
+        <h3 class="text-lg leading-6 font-medium text-gray-900 mb-6">Strumenti di Gestione</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           <!-- Verifica Disponibilità -->
-          <div class="tool-card">
-            <h3>
-              <i class="fas fa-search"></i>
+          <div class="bg-gray-50 rounded-lg p-6 border border-gray-200">
+            <h4 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
+              <i class="fas fa-search text-blue-600 mr-2"></i>
               Verifica Disponibilità
-            </h3>
-            <div class="form-group">
-              <label>Data e Ora:</label>
-              <input 
-                v-model="verificaForm.dataOra" 
-                type="datetime-local" 
-                class="form-control"
+            </h4>
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Data e Ora:</label>
+                <input 
+                  v-model="verificaForm.dataOra" 
+                  type="datetime-local" 
+                  class="w-full border border-gray-300 rounded-md px-3 py-2"
+                >
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Durata (minuti):</label>
+                <input 
+                  v-model="verificaForm.durata" 
+                  type="number" 
+                  class="w-full border border-gray-300 rounded-md px-3 py-2"
+                  min="15"
+                  step="15"
+                >
+              </div>
+              <button 
+                @click="verificaDisponibilita" 
+                class="w-full inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50"
+                :disabled="!verificaForm.dataOra || !verificaForm.durata"
               >
+                Verifica
+              </button>
             </div>
-            <div class="form-group">
-              <label>Durata (minuti):</label>
-              <input 
-                v-model="verificaForm.durata" 
-                type="number" 
-                class="form-control"
-                min="15"
-                step="15"
-              >
-            </div>
-            <button 
-              @click="verificaDisponibilita" 
-              class="btn btn-primary"
-              :disabled="!verificaForm.dataOra || !verificaForm.durata"
-            >
-              Verifica
-            </button>
           </div>
 
           <!-- Suggerimenti Sale -->
-          <div class="tool-card">
-            <h3>
-              <i class="fas fa-lightbulb"></i>
+          <div class="bg-gray-50 rounded-lg p-6 border border-gray-200">
+            <h4 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
+              <i class="fas fa-lightbulb text-yellow-600 mr-2"></i>
               Suggerimenti Sale
-            </h3>
-            <div class="form-group">
-              <label>Tipo Servizio:</label>
-              <select v-model="suggerimentiForm.tipoServizio" class="form-control">
-                <option value="">Seleziona servizio</option>
-                <option value="massaggio">Massaggio</option>
-                <option value="trattamento_viso">Trattamento Viso</option>
-                <option value="manicure">Manicure</option>
-                <option value="pedicure">Pedicure</option>
-                <option value="depilazione">Depilazione</option>
-                <option value="trucco">Trucco</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label>Cliente Premium:</label>
-              <input 
-                v-model="suggerimentiForm.clientePremium" 
-                type="checkbox" 
-                class="form-checkbox"
+            </h4>
+            <div class="space-y-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Tipo Servizio:</label>
+                <select v-model="suggerimentiForm.tipoServizio" class="w-full border border-gray-300 rounded-md px-3 py-2">
+                  <option value="">Seleziona servizio</option>
+                  <option value="massaggio">Massaggio</option>
+                  <option value="trattamento_viso">Trattamento Viso</option>
+                  <option value="manicure">Manicure</option>
+                  <option value="pedicure">Pedicure</option>
+                  <option value="depilazione">Depilazione</option>
+                  <option value="trucco">Trucco</option>
+                </select>
+              </div>
+              <div class="flex items-center">
+                <input 
+                  v-model="suggerimentiForm.clientePremium" 
+                  type="checkbox" 
+                  class="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+                >
+                <label class="ml-2 block text-sm text-gray-700">Cliente Premium</label>
+              </div>
+              <button 
+                @click="ottieniSuggerimenti" 
+                class="w-full inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50"
+                :disabled="!suggerimentiForm.tipoServizio"
               >
+                Ottieni Suggerimenti
+              </button>
             </div>
-            <button 
-              @click="ottieniSuggerimenti" 
-              class="btn btn-primary"
-              :disabled="!suggerimentiForm.tipoServizio"
-            >
-              Ottieni Suggerimenti
-            </button>
           </div>
 
           <!-- Ottimizzazione -->
-          <div class="tool-card">
-            <h3>
-              <i class="fas fa-chart-line"></i>
+          <div class="bg-gray-50 rounded-lg p-6 border border-gray-200">
+            <h4 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
+              <i class="fas fa-chart-line text-green-600 mr-2"></i>
               Ottimizzazione
-            </h3>
-            <p>Analizza l'utilizzo delle sale e ottieni suggerimenti per migliorare l'efficienza.</p>
-            <button 
-              @click="ottieniOttimizzazione" 
-              class="btn btn-primary"
-            >
-              Analizza Ottimizzazione
-            </button>
+            </h4>
+            <div class="space-y-4">
+              <p class="text-sm text-gray-600">Analizza l'utilizzo delle sale e ottieni suggerimenti per migliorare l'efficienza.</p>
+              <button 
+                @click="ottieniOttimizzazione" 
+                class="w-full inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+              >
+                Analizza Ottimizzazione
+              </button>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Risultati -->
-    <div v-if="risultati.length > 0" class="section">
-      <div class="section-header">
-        <h2>
-          <i class="fas fa-list-ul"></i>
-          Risultati
-        </h2>
-        <button @click="risultati = []" class="btn btn-outline">
-          <i class="fas fa-times"></i>
-          Pulisci
-        </button>
-      </div>
-      
-      <div class="risultati-container">
-        <div 
-          v-for="(risultato, index) in risultati" 
-          :key="index"
-          class="risultato-card"
-        >
-          <div class="risultato-header">
-            <h4>{{ risultato.titolo }}</h4>
-            <span class="timestamp">{{ formatDate(risultato.timestamp) }}</span>
-          </div>
-          <div class="risultato-content">
-            <pre>{{ JSON.stringify(risultato.data, null, 2) }}</pre>
+    <div v-if="risultati.length > 0" class="bg-white shadow rounded-lg">
+      <div class="px-4 py-5 sm:p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-lg leading-6 font-medium text-gray-900">Risultati</h3>
+          <button 
+            @click="risultati = []" 
+            class="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+          >
+            Pulisci
+          </button>
+        </div>
+        <div class="space-y-4">
+          <div 
+            v-for="(risultato, index) in risultati" 
+            :key="index"
+            class="bg-gray-50 border border-gray-200 rounded-lg p-4"
+          >
+            <div class="flex items-center justify-between mb-3 pb-3 border-b border-gray-200">
+              <h4 class="text-lg font-medium text-gray-900">{{ risultato.titolo }}</h4>
+              <span class="text-sm text-gray-500">{{ formatDate(risultato.timestamp) }}</span>
+            </div>
+            <div class="bg-white border border-gray-200 rounded-md p-4">
+              <pre class="text-sm text-gray-800 overflow-x-auto max-h-80 whitespace-pre-wrap">{{ JSON.stringify(risultato.data, null, 2) }}</pre>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Loading Overlay -->
-    <div v-if="loading" class="loading-overlay">
-      <div class="loading-spinner">
-        <i class="fas fa-spinner fa-spin"></i>
-        <p>Caricamento...</p>
-      </div>
+    <!-- Loading -->
+    <div v-if="loading" class="flex justify-center py-8">
+      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
     </div>
   </div>
 </template>
@@ -444,393 +472,3 @@ export default {
   }
 }
 </script>
-
-<style scoped>
-.sala-management {
-  padding: 20px;
-  max-width: 1400px;
-  margin: 0 auto;
-}
-
-.page-header {
-  margin-bottom: 30px;
-  text-align: center;
-}
-
-.page-title {
-  font-size: 2.5rem;
-  color: #2c3e50;
-  margin-bottom: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 15px;
-}
-
-.page-subtitle {
-  color: #7f8c8d;
-  font-size: 1.1rem;
-}
-
-.dashboard-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 20px;
-  margin-bottom: 40px;
-}
-
-.overview-card {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  padding: 25px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border-radius: 15px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-}
-
-.card-icon {
-  font-size: 2.5rem;
-  opacity: 0.8;
-}
-
-.card-content h3 {
-  margin: 0 0 10px 0;
-  font-size: 1rem;
-  opacity: 0.9;
-}
-
-.metric {
-  font-size: 2rem;
-  font-weight: bold;
-  margin: 0;
-}
-
-.section {
-  margin-bottom: 40px;
-  background: white;
-  border-radius: 15px;
-  padding: 30px;
-  box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-}
-
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 25px;
-  padding-bottom: 15px;
-  border-bottom: 2px solid #ecf0f1;
-}
-
-.section-header h2 {
-  color: #2c3e50;
-  margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.controls {
-  display: flex;
-  gap: 10px;
-}
-
-.sale-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 25px;
-}
-
-.sala-card {
-  border: 2px solid #ecf0f1;
-  border-radius: 12px;
-  padding: 20px;
-  transition: all 0.3s ease;
-  background: white;
-}
-
-.sala-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-}
-
-.sala-card.disponibile {
-  border-color: #27ae60;
-}
-
-.sala-card.occupata {
-  border-color: #e74c3c;
-  background: #fdf2f2;
-}
-
-.sala-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 15px;
-}
-
-.sala-header h3 {
-  margin: 0;
-  color: #2c3e50;
-}
-
-.status-badge {
-  padding: 5px 12px;
-  border-radius: 20px;
-  font-size: 0.85rem;
-  font-weight: bold;
-}
-
-.status-badge.disponibile {
-  background: #d5f4e6;
-  color: #27ae60;
-}
-
-.status-badge.occupata {
-  background: #ffeaea;
-  color: #e74c3c;
-}
-
-.sala-details {
-  margin-bottom: 20px;
-}
-
-.description {
-  color: #7f8c8d;
-  margin-bottom: 15px;
-  font-style: italic;
-}
-
-.sala-specs {
-  display: flex;
-  gap: 15px;
-  margin-bottom: 15px;
-}
-
-.spec {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  color: #34495e;
-  font-size: 0.9rem;
-}
-
-.servizi-supportati h4 {
-  margin: 0 0 10px 0;
-  color: #2c3e50;
-  font-size: 0.9rem;
-}
-
-.servizi-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.servizio-tag {
-  background: #3498db;
-  color: white;
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 0.8rem;
-}
-
-.sala-actions {
-  display: flex;
-  gap: 10px;
-}
-
-.tools-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 25px;
-}
-
-.tool-card {
-  border: 1px solid #ecf0f1;
-  border-radius: 12px;
-  padding: 25px;
-  background: #f8f9fa;
-}
-
-.tool-card h3 {
-  margin: 0 0 20px 0;
-  color: #2c3e50;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.form-group {
-  margin-bottom: 15px;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 5px;
-  color: #34495e;
-  font-weight: 500;
-}
-
-.form-control {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  font-size: 1rem;
-}
-
-.form-checkbox {
-  width: auto;
-  margin-left: 0;
-}
-
-.btn {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 1rem;
-  transition: all 0.3s ease;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.btn-primary {
-  background: #3498db;
-  color: white;
-}
-
-.btn-primary:hover:not(:disabled) {
-  background: #2980b9;
-  transform: translateY(-2px);
-}
-
-.btn-outline {
-  background: transparent;
-  color: #3498db;
-  border: 1px solid #3498db;
-}
-
-.btn-outline:hover {
-  background: #3498db;
-  color: white;
-}
-
-.risultati-container {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.risultato-card {
-  border: 1px solid #ecf0f1;
-  border-radius: 12px;
-  padding: 20px;
-  background: #f8f9fa;
-}
-
-.risultato-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 15px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid #dee2e6;
-}
-
-.risultato-header h4 {
-  margin: 0;
-  color: #2c3e50;
-}
-
-.timestamp {
-  color: #7f8c8d;
-  font-size: 0.9rem;
-}
-
-.risultato-content pre {
-  background: white;
-  border: 1px solid #dee2e6;
-  border-radius: 8px;
-  padding: 15px;
-  margin: 0;
-  overflow-x: auto;
-  max-height: 300px;
-  font-size: 0.9rem;
-}
-
-.loading-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0,0,0,0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-
-.loading-spinner {
-  background: white;
-  padding: 30px;
-  border-radius: 15px;
-  text-align: center;
-}
-
-.loading-spinner i {
-  font-size: 2rem;
-  color: #3498db;
-  margin-bottom: 15px;
-}
-
-.loading-spinner p {
-  margin: 0;
-  color: #2c3e50;
-}
-
-@media (max-width: 768px) {
-  .sala-management {
-    padding: 15px;
-  }
-  
-  .page-title {
-    font-size: 2rem;
-    flex-direction: column;
-    gap: 10px;
-  }
-  
-  .dashboard-cards {
-    grid-template-columns: 1fr;
-  }
-  
-  .sale-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .tools-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .section-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 15px;
-  }
-  
-  .controls {
-    width: 100%;
-  }
-}
-</style>
