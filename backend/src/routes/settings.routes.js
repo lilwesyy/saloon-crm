@@ -21,7 +21,8 @@ router.put('/system',
     body('businessPhone').optional().trim().isLength({ min: 5, max: 20 }),
     body('businessEmail').optional().isEmail().normalizeEmail(),
     body('businessAddress').optional().trim().isLength({ min: 5, max: 200 }),
-    body('openingHours').optional().trim().isLength({ min: 5, max: 500 })
+    body('openingHours').optional().trim().isLength({ min: 5, max: 500 }),
+    body('onlineBookingEnabled').optional().isBoolean()
   ],
   settingsController.updateSystemSettings
 );

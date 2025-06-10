@@ -10,8 +10,166 @@
 -->
 <template>
   <PublicLayout>
-    <!-- Main Content -->
-    <div class="max-w-4xl mx-auto px-4 py-8">
+    <!-- Loading impostazioni -->
+    <div v-if="loadingSettings" class="max-w-4xl mx-auto px-4 py-8">
+      <div class="text-center py-16">
+        <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-purple-600 mx-auto mb-4"></div>
+        <p class="text-gray-600">Verifica disponibilità prenotazioni online...</p>
+      </div>
+    </div>
+
+    <!-- Banner prenotazioni disabilitate -->
+    <div v-else-if="prenotazioniDisabilitate" class="min-h-screen bg-gradient-to-br from-red-50 to-red-100">
+      <!-- Banner superiore -->
+      <div class="bg-gradient-to-r from-red-500 to-red-600 text-white py-3">
+        <div class="max-w-4xl mx-auto px-4">
+          <div class="flex items-center justify-center">
+            <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+            <span class="text-sm font-medium">Servizio temporaneamente non disponibile</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contenuto principale -->
+      <div class="max-w-4xl mx-auto px-4 py-16">
+        <div class="bg-white rounded-2xl shadow-xl border border-red-200 overflow-hidden">
+          <!-- Header con icona -->
+          <div class="bg-gradient-to-r from-red-500 to-red-600 text-white p-8 text-center">
+            <div class="mx-auto flex items-center justify-center h-20 w-20 rounded-full bg-white bg-opacity-20 mb-6">
+              <svg class="h-10 w-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m-6 9l6-6m0 0l6 6m-6-6H6a2 2 0 00-2 2v6a2 2 0 002 2h12a2 2 0 002-2v-6a2 2 0 00-2-2h-6z" />
+              </svg>
+            </div>
+            <h1 class="text-3xl font-bold mb-2">Prenotazioni Online Sospese</h1>
+            <p class="text-red-100 text-lg">Il servizio è temporaneamente non disponibile</p>
+          </div>
+
+          <!-- Contenuto -->
+          <div class="p-8">
+            <div class="text-center mb-8">
+              <h2 class="text-xl font-semibold text-gray-900 mb-4">Ci dispiace per l'inconveniente</h2>
+              <p class="text-gray-600 max-w-2xl mx-auto leading-relaxed">
+                Le prenotazioni online di <span class="font-semibold text-purple-700">{{ settingsStore.businessName || 'Centro Estetico' }}</span> sono attualmente sospese per manutenzione del sistema. 
+                Ti preghiamo di contattarci direttamente per prenotare il tuo appuntamento. 
+                Il nostro staff sarà felice di aiutarti a trovare l'orario perfetto per te.
+              </p>
+            </div>
+
+            <!-- Informazioni di contatto -->
+            <div class="bg-gray-50 rounded-xl p-6 mb-6">
+              <h3 class="text-lg font-semibold text-gray-900 mb-4 text-center">
+                📞 Contattaci per prenotare
+              </h3>
+              <div class="grid md:grid-cols-2 gap-4">
+                <div class="text-center p-4 bg-white rounded-lg border">
+                  <div class="text-purple-600 mb-2">
+                    <svg class="h-8 w-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                    </svg>
+                  </div>
+                  <h4 class="font-medium text-gray-900">Telefono</h4>
+                  <a :href="`tel:${settingsStore.businessPhone || '+39123456789'}`" class="text-purple-600 hover:underline font-medium">
+                    {{ settingsStore.businessPhone || '+39 123 456 789' }}
+                  </a>
+                  <p class="text-sm text-gray-500 mt-1">{{ settingsStore.openingHours?.split('\n')[0] || 'Lun-Ven: 9:00-19:00' }}</p>
+                </div>
+                
+                <div class="text-center p-4 bg-white rounded-lg border">
+                  <div class="text-purple-600 mb-2">
+                    <svg class="h-8 w-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  <h4 class="font-medium text-gray-900">Email</h4>
+                  <a :href="`mailto:${settingsStore.businessEmail || 'info@centroestetico.it'}`" class="text-purple-600 hover:underline font-medium">
+                    {{ settingsStore.businessEmail || 'info@centroestetico.it' }}
+                  </a>
+                  <p class="text-sm text-gray-500 mt-1">Risposta entro 24h</p>
+                </div>
+              </div>
+              
+              <!-- Indirizzo se disponibile -->
+              <div v-if="settingsStore.businessAddress" class="mt-4 p-4 bg-white rounded-lg border text-center">
+                <div class="text-purple-600 mb-2">
+                  <svg class="h-6 w-6 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                </div>
+                <h4 class="font-medium text-gray-900 mb-1">Dove trovarci</h4>
+                <p class="text-sm text-gray-600">{{ settingsStore.businessAddress }}</p>
+              </div>
+              
+              <!-- Orari completi se disponibili -->
+              <div v-if="settingsStore.openingHours" class="mt-4 p-4 bg-white rounded-lg border text-center">
+                <div class="text-purple-600 mb-2">
+                  <svg class="h-6 w-6 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <h4 class="font-medium text-gray-900 mb-2">Orari di apertura</h4>
+                <div class="text-sm text-gray-600 whitespace-pre-line">{{ settingsStore.openingHours }}</div>
+              </div>
+            </div>
+
+            <!-- Pulsanti di azione -->
+            <div class="text-center space-y-4">
+              <a :href="`tel:${settingsStore.businessPhone || '+39123456789'}`" 
+                 class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-600 to-purple-700 text-white font-medium rounded-lg hover:from-purple-700 hover:to-purple-800 transition-all duration-200 shadow-lg hover:shadow-xl">
+                <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                </svg>
+                Chiama ora per prenotare
+              </a>
+              
+              <div class="flex justify-center space-x-4">
+                <a v-if="settingsStore.businessEmail" 
+                   :href="`mailto:${settingsStore.businessEmail}`"
+                   class="inline-flex items-center px-4 py-2 bg-white border border-purple-300 text-purple-700 font-medium rounded-lg hover:bg-purple-50 transition-colors">
+                  <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                  Scrivi email
+                </a>
+                
+                <button @click="verificaImpostazioniPrenotazioni" 
+                        class="inline-flex items-center px-4 py-2 text-purple-600 border border-purple-300 hover:bg-purple-50 font-medium rounded-lg transition-colors">
+                  <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                  Riprova connessione
+                </button>
+              </div>
+            </div>
+
+            <!-- Informazioni aggiuntive -->
+            <div class="mt-8 p-4 bg-blue-50 rounded-lg border border-blue-200">
+              <div class="flex items-start">
+                <svg class="h-5 w-5 text-blue-600 mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div>
+                  <h4 class="text-sm font-medium text-blue-900">Informazione</h4>
+                  <p class="text-sm text-blue-800 mt-1">
+                    Il sistema di prenotazioni online di <span class="font-semibold">{{ settingsStore.businessName || 'Centro Estetico' }}</span> tornerà disponibile al più presto. 
+                    Ci scusiamo per il disagio e ti ringraziamo per la comprensione.
+                  </p>
+                  <p class="text-sm text-blue-800 mt-2">
+                    Nel frattempo, puoi contattarci direttamente usando i recapiti sopra indicati. 
+                    Saremo felici di assisterti nella prenotazione del tuo trattamento preferito.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content (quando le prenotazioni sono abilitate) -->
+    <div v-else class="max-w-4xl mx-auto px-4 py-8">
       <div class="flex items-center justify-between mb-4">
         <div v-for="(step, index) in steps" :key="index" class="flex items-center">
           <div 
@@ -380,6 +538,9 @@
 import { ref, computed, onMounted } from 'vue'
 import PublicLayout from '@/layouts/PublicLayout.vue'
 import prenotazioneOnlineService from '@/services/prenotazioneOnline.service'
+import { useSettingsStore } from '@/stores/settings'
+
+const settingsStore = useSettingsStore()
 
 // Types
 interface Servizio {
@@ -412,9 +573,12 @@ const currentStep = ref(0)
 const loading = ref(false)
 const loadingServizi = ref(false)
 const loadingDisponibilita = ref(false)
+const loadingSettings = ref(true)
 const errorMessage = ref('')
 const numeroPrenotazione = ref('')
+const prenotazioniDisabilitate = ref(false)
 
+// Gestione errore prenotazioni disabilitate nella funzione caricaServizi
 // Steps configuration
 const steps = [
   { title: 'Servizio', description: 'Scegli il trattamento desiderato' },
@@ -473,6 +637,27 @@ const formValido = computed(() => {
 })
 
 // Methods
+const verificaImpostazioniPrenotazioni = async () => {
+  try {
+    loadingSettings.value = true
+    await settingsStore.fetchSystemSettings()
+    
+    // Verifica se le prenotazioni online sono abilitate
+    if (!settingsStore.prenotazioniOnlineAbilitate) {
+      prenotazioniDisabilitate.value = true
+      return false
+    }
+    
+    return true
+  } catch (error: any) {
+    console.error('Errore verifica impostazioni:', error)
+    // In caso di errore, permetti le prenotazioni (comportamento predefinito)
+    return true
+  } finally {
+    loadingSettings.value = false
+  }
+}
+
 const caricaServizi = async () => {
   try {
     loadingServizi.value = true
@@ -480,7 +665,13 @@ const caricaServizi = async () => {
     servizi.value = response.servizi ? Object.values(response.servizi).flat() : []
   } catch (error: any) {
     console.error('Errore caricamento servizi:', error)
-    errorMessage.value = error.message
+    
+    // Verifica se le prenotazioni online sono disabilitate
+    if (error.response?.status === 503 && error.response?.data?.error === 'PRENOTAZIONI_ONLINE_DISABILITATE') {
+      prenotazioniDisabilitate.value = true
+    } else {
+      errorMessage.value = error.message
+    }
   } finally {
     loadingServizi.value = false
   }
@@ -498,7 +689,13 @@ const caricaDisponibilita = async () => {
     slotsDisponibili.value = response.slotsDisponibili || []
   } catch (error: any) {
     console.error('Errore caricamento disponibilità:', error)
-    errorMessage.value = error.message
+    
+    // Verifica se le prenotazioni online sono disabilitate
+    if (error.response?.status === 503 && error.response?.data?.error === 'PRENOTAZIONI_ONLINE_DISABILITATE') {
+      prenotazioniDisabilitate.value = true
+    } else {
+      errorMessage.value = error.message
+    }
   } finally {
     loadingDisponibilita.value = false
   }
@@ -549,7 +746,13 @@ const confermaPrenotazione = async () => {
     
   } catch (error: any) {
     console.error('Errore conferma prenotazione:', error)
-    errorMessage.value = error.message
+    
+    // Verifica se le prenotazioni online sono disabilitate
+    if (error.response?.status === 503 && error.response?.data?.error === 'PRENOTAZIONI_ONLINE_DISABILITATE') {
+      prenotazioniDisabilitate.value = true
+    } else {
+      errorMessage.value = error.message
+    }
   } finally {
     loading.value = false
   }
@@ -596,8 +799,14 @@ const formatOrario = (dateTime: string) => {
 }
 
 // Lifecycle
-onMounted(() => {
-  caricaServizi()
+onMounted(async () => {
+  // Prima verifica se le prenotazioni online sono abilitate
+  const prenotazioniAbilitate = await verificaImpostazioniPrenotazioni()
+  
+  // Solo se sono abilitate, carica i servizi
+  if (prenotazioniAbilitate) {
+    caricaServizi()
+  }
 })
 </script>
 

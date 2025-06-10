@@ -1,3 +1,8 @@
+const Appuntamento = require('../models/appuntamento.model');
+const Cliente = require('../models/cliente.model');
+const Servizio = require('../models/servizio.model');
+const User = require('../models/user.model');
+const Settings = require('../models/settings.model');
 const { body, param, query, validationResult } = require('express-validator');
 
 // Middleware per gestire gli errori di validazione
@@ -226,6 +231,29 @@ const sanitizeInput = (req, res, next) => {
   next();
 };
 
+// Middleware per verificare se le prenotazioni online sono abilitate
+const checkPrenotazioniOnlineAbilitate = async (req, res, next) => {
+  try {
+    const settings = await Settings.findOne({ type: 'system' });
+    
+    // Se non ci sono impostazioni, usa i valori predefiniti
+    const prenotazioniAbilitate = settings?.settings?.onlineBookingEnabled ?? true;
+    
+    if (!prenotazioniAbilitate) {
+      return res.status(503).json({
+        message: 'Le prenotazioni online sono temporaneamente sospese. Ti preghiamo di contattarci telefonicamente.',
+        error: 'PRENOTAZIONI_ONLINE_DISABILITATE'
+      });
+    }
+    
+    next();
+  } catch (error) {
+    console.error('Errore verifica impostazioni prenotazioni online:', error);
+    // In caso di errore, permetti le prenotazioni (comportamento predefinito)
+    next();
+  }
+};
+
 module.exports = {
   validatePrenotazioneOnline,
   validateDisponibilita,
@@ -233,5 +261,6 @@ module.exports = {
   validateCancellazione,
   rateLimitPublic,
   sanitizeInput,
-  handleValidationErrors
+  handleValidationErrors,
+  checkPrenotazioniOnlineAbilitate
 };

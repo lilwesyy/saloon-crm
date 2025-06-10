@@ -6,6 +6,7 @@ export interface SystemSettings {
   businessEmail: string
   businessAddress: string
   openingHours: string
+  onlineBookingEnabled?: boolean
 }
 
 class SettingsService {

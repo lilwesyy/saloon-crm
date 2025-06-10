@@ -9,6 +9,7 @@ export const useSettingsStore = defineStore('settings', () => {
   const businessEmail = ref<string>('info@centroestetico.it')
   const businessAddress = ref<string>('')
   const openingHours = ref<string>('')
+  const prenotazioniOnlineAbilitate = ref<boolean>(true)
   const loading = ref<boolean>(false)
   const loaded = ref<boolean>(false)
   const error = ref<string | null>(null)
@@ -19,6 +20,7 @@ export const useSettingsStore = defineStore('settings', () => {
   const getBusinessEmail = () => businessEmail.value
   const getBusinessAddress = () => businessAddress.value
   const getOpeningHours = () => openingHours.value
+  const getPrenotazioniOnlineAbilitate = () => prenotazioniOnlineAbilitate.value
 
   // Actions
   async function fetchSystemSettings() {
@@ -36,6 +38,7 @@ export const useSettingsStore = defineStore('settings', () => {
       businessEmail.value = settings.businessEmail || 'info@centroestetico.it'
       businessAddress.value = settings.businessAddress || ''
       openingHours.value = settings.openingHours || ''
+      prenotazioniOnlineAbilitate.value = settings.onlineBookingEnabled ?? true
       
       loaded.value = true
     } catch (err: any) {
@@ -59,6 +62,7 @@ export const useSettingsStore = defineStore('settings', () => {
       businessEmail.value = updated.businessEmail || businessEmail.value
       businessAddress.value = updated.businessAddress || businessAddress.value
       openingHours.value = updated.openingHours || openingHours.value
+      prenotazioniOnlineAbilitate.value = updated.onlineBookingEnabled ?? prenotazioniOnlineAbilitate.value
       
       return updated
     } catch (err: any) {
@@ -78,6 +82,7 @@ export const useSettingsStore = defineStore('settings', () => {
     businessEmail,
     businessAddress,
     openingHours,
+    prenotazioniOnlineAbilitate,
     loading,
     loaded,
     error,
@@ -88,6 +93,7 @@ export const useSettingsStore = defineStore('settings', () => {
     getBusinessEmail,
     getBusinessAddress,
     getOpeningHours,
+    getPrenotazioniOnlineAbilitate,
     
     // Actions
     fetchSystemSettings,

@@ -40,7 +40,8 @@ settingsSchema.statics.getDefaultSystemSettings = function() {
     businessPhone: '+39 123 456 7890',
     businessEmail: 'info@centroestetico.it',
     businessAddress: 'Via Roma 123, 00100 Roma, Italia',
-    openingHours: 'Lun-Ven: 9:00-19:00\nSabato: 9:00-13:00\nDomenica: Chiuso'
+    openingHours: 'Lun-Ven: 9:00-19:00\nSabato: 9:00-13:00\nDomenica: Chiuso',
+    onlineBookingEnabled: true
   };
 };
 

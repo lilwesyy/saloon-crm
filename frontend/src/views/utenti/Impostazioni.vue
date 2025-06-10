@@ -186,6 +186,29 @@
                 ></textarea>
               </div>
             </div>
+            
+            <div class="sm:col-span-2">
+              <div class="flex items-center justify-between">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700">Prenotazioni online</label>
+                  <p class="text-sm text-gray-500">Abilita o disabilita le prenotazioni online per i clienti</p>
+                </div>
+                <div class="relative inline-block w-10 mr-2 align-middle select-none">
+                  <input 
+                    type="checkbox" 
+                    v-model="systemSettings.onlineBookingEnabled" 
+                    id="toggle-prenotazioni-online" 
+                    class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"
+                  />
+                  <label for="toggle-prenotazioni-online" class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
+                </div>
+              </div>
+              <div class="mt-2">
+                <span class="text-sm" :class="systemSettings.onlineBookingEnabled ? 'text-green-600' : 'text-red-600'">
+                  {{ systemSettings.onlineBookingEnabled ? 'Le prenotazioni online sono attive' : 'Le prenotazioni online sono sospese' }}
+                </span>
+              </div>
+            </div>
           </div>
           
           <div class="mt-4 flex justify-end">
@@ -311,7 +334,8 @@ const systemSettings = reactive({
   businessPhone: settingsStore.businessPhone,
   businessEmail: settingsStore.businessEmail,
   businessAddress: settingsStore.businessAddress, 
-  openingHours: settingsStore.openingHours
+  openingHours: settingsStore.openingHours,
+  onlineBookingEnabled: settingsStore.prenotazioniOnlineAbilitate
 })
 
 const getRuoloLabel = (ruolo) => {
@@ -384,7 +408,8 @@ const saveSystemSettings = async () => {
       businessPhone: systemSettings.businessPhone,
       businessEmail: systemSettings.businessEmail,
       businessAddress: systemSettings.businessAddress,
-      openingHours: systemSettings.openingHours
+      openingHours: systemSettings.openingHours,
+      onlineBookingEnabled: systemSettings.onlineBookingEnabled
     })
     toast.success('Impostazioni di sistema aggiornate')
   } catch (error) {
@@ -414,6 +439,7 @@ onMounted(async () => {
       systemSettings.businessEmail = settingsStore.businessEmail
       systemSettings.businessAddress = settingsStore.businessAddress
       systemSettings.openingHours = settingsStore.openingHours
+      systemSettings.onlineBookingEnabled = settingsStore.prenotazioniOnlineAbilitate
     }
   } catch (error) {
     console.error('Errore durante il caricamento delle impostazioni:', error)

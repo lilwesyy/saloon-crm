@@ -9,9 +9,13 @@ const {
   sanitizeClienteData,
   rateLimitPrenotazioni
 } = require('../middleware/prenotazioneOnline.validation');
+const { checkPrenotazioniOnlineAbilitate } = require('../middleware/prenotazioneOnline.middleware');
 
 // Middleware per rate limiting su tutte le routes
 router.use(rateLimitPrenotazioni);
+
+// Middleware per verificare se le prenotazioni online sono abilitate
+router.use(checkPrenotazioniOnlineAbilitate);
 
 // GET /api/prenotazione-online/servizi - Ottiene servizi disponibili
 router.get('/servizi', prenotazioneOnlineController.getServiziDisponibili);
