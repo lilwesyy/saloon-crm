@@ -484,20 +484,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import {
-  PlusIcon as Plus,
-  EnvelopeIcon as Mail,
-  PlayIcon as Play,
-  PaperAirplaneIcon as Send,
-  EyeIcon as Eye,
-  PauseIcon as Pause,
-  PencilIcon as Edit,
-  DocumentDuplicateIcon as Copy,
-  TrashIcon as Trash2,
-  ChevronLeftIcon as ChevronLeft,
-  ChevronRightIcon as ChevronRight
-} from '@heroicons/vue/24/outline'
-
 import { useCampagneStore } from '@/stores/campagne'
 import { useNotificationStore } from '@/stores/notifications'
 import DeleteConfirmModal from '@/components/common/DeleteConfirmModal.vue'
