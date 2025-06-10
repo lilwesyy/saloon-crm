@@ -121,7 +121,35 @@
             <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
               <dt class="text-sm font-medium text-gray-500">Importo</dt>
               <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                <span class="text-lg font-bold text-green-600">€{{ pagamento.importo.toFixed(2) }}</span>
+                <div class="flex items-center justify-between">
+                  <span class="text-lg font-bold text-green-600">€{{ pagamento.importo.toFixed(2) }}</span>
+                  
+                  <div class="relative" v-if="pagamento.stato === 'completato'">
+                    <button
+                      @click="toggleRicevutaMenu"
+                      class="inline-flex items-center px-3 py-1 border border-transparent text-sm font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200"
+                    >
+                      <svg class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                      </svg>
+                      Ricevuta PDF
+                    </button>
+                    <div v-if="showRicevutaMenu" class="absolute right-0 mt-2 py-1 w-48 bg-white rounded-md shadow-lg z-10">
+                      <button 
+                        @click="generaRicevutaPDF(false)" 
+                        class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        Scarica PDF
+                      </button>
+                      <button 
+                        @click="generaRicevutaPDF(true)" 
+                        class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        Visualizza PDF
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </dd>
             </div>
 
@@ -229,37 +257,13 @@
     </div>
 
     <!-- Modal per conferma eliminazione -->
-    <div v-if="showDeleteModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" @click="closeDeleteModal">
-      <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white" @click.stop>
-        <div class="mt-3 text-center">
-          <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100">
-            <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-            </svg>
-          </div>
-          <h3 class="text-lg font-medium text-gray-900 mt-2">Conferma Eliminazione</h3>
-          <div class="mt-2 px-7 py-3">
-            <p class="text-sm text-gray-500">
-              Sei sicuro di voler eliminare questo pagamento? Questa azione non può essere annullata.
-            </p>
-          </div>
-          <div class="flex justify-center space-x-3 px-4 py-3">
-            <button 
-              @click="closeDeleteModal"
-              class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
-            >
-              Annulla
-            </button>
-            <button 
-              @click="confermaEliminazione"
-              class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-            >
-              Elimina
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
+    <DeleteConfirmModal
+      v-model="showDeleteModal"
+      title="Conferma Eliminazione"
+      message="Sei sicuro di voler eliminare questo pagamento? Questa azione non può essere annullata."
+      @confirm="confermaEliminazione"
+      @cancel="closeDeleteModal"
+    />
   </div>
 </template>
 
@@ -268,6 +272,9 @@ import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import pagamentiService, { type Pagamento } from '@/services/pagamenti.service'
 import { useToast } from '@/composables/useToast'
+import { jsPDF } from 'jspdf'
+import html2canvas from 'html2canvas'
+import DeleteConfirmModal from '@/components/common/DeleteConfirmModal.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -277,6 +284,7 @@ const loading = ref(true)
 const pagamento = ref<Pagamento | null>(null)
 const showRefundModal = ref(false)
 const showDeleteModal = ref(false)
+const showRicevutaMenu = ref(false)
 
 // Dati per rimborso
 const refundData = ref({
@@ -340,6 +348,10 @@ const closeDeleteModal = () => {
   showDeleteModal.value = false
 }
 
+const toggleRicevutaMenu = () => {
+  showRicevutaMenu.value = !showRicevutaMenu.value
+}
+
 const confermaRimborso = async () => {
   if (!pagamento.value) return
   
@@ -370,6 +382,160 @@ const confermaEliminazione = async () => {
   } catch (error) {
     console.error('Errore nell\'eliminazione:', error)
     toast.error('Errore nell\'eliminazione del pagamento')
+  }
+}
+
+const generaRicevutaPDF = async (visualizza = false) => {
+  if (!pagamento.value) return
+
+  try {
+    toast.info('Generazione ricevuta in corso...')
+    showRicevutaMenu.value = false
+
+    // Crea un div temporaneo per il layout della ricevuta
+    const ricevutaContainer = document.createElement('div')
+    ricevutaContainer.className = 'bg-white p-8 max-w-2xl mx-auto'
+    ricevutaContainer.style.fontFamily = 'Arial, sans-serif'
+    
+    // Intestazione
+    ricevutaContainer.innerHTML = `
+      <div style="text-align: center; margin-bottom: 30px;">
+        <h1 style="font-size: 24px; font-weight: bold; margin-bottom: 5px;">RICEVUTA DI PAGAMENTO</h1>
+        <p style="font-size: 16px;">Ricevuta #${pagamento.value._id.slice(-8).toUpperCase()}</p>
+      </div>
+      
+      <div style="margin-bottom: 30px;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+          <div>
+            <p style="font-weight: bold;">Cliente:</p>
+            <p>${pagamento.value.cliente.nome} ${pagamento.value.cliente.cognome}</p>
+            ${pagamento.value.cliente.email ? `<p>${pagamento.value.cliente.email}</p>` : ''}
+            ${pagamento.value.cliente.telefono ? `<p>${pagamento.value.cliente.telefono}</p>` : ''}
+          </div>
+          <div>
+            <p style="font-weight: bold;">Data:</p>
+            <p>${formatDate(pagamento.value.dataPagamento)}</p>
+            <p>${formatTime(pagamento.value.dataPagamento)}</p>
+          </div>
+        </div>
+      </div>
+      
+      <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
+        <thead>
+          <tr style="border-bottom: 1px solid #ddd;">
+            <th style="text-align: left; padding: 10px;">Descrizione</th>
+            <th style="text-align: right; padding: 10px;">Importo (€)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="border-bottom: 1px solid #eee;">
+            <td style="padding: 10px;">${pagamento.value.servizio ? pagamento.value.servizio.nome : formatTipo(pagamento.value.tipo)}</td>
+            <td style="text-align: right; padding: 10px;">${pagamento.value.importo.toFixed(2)}</td>
+          </tr>
+          <tr>
+            <td style="text-align: right; padding: 10px; font-weight: bold;">Totale</td>
+            <td style="text-align: right; padding: 10px; font-weight: bold;">${pagamento.value.importo.toFixed(2)}</td>
+          </tr>
+        </tbody>
+      </table>
+      
+      <div style="margin-bottom: 20px;">
+        <p style="font-weight: bold;">Metodo di pagamento:</p>
+        <p>${formatMetodo(pagamento.value.metodo)}</p>
+      </div>
+      
+      ${pagamento.value.note ? `
+      <div style="margin-bottom: 20px;">
+        <p style="font-weight: bold;">Note:</p>
+        <p>${pagamento.value.note}</p>
+      </div>
+      ` : ''}
+      
+      <div style="margin-top: 40px; text-align: center;">
+        <p>Grazie per la fiducia!</p>
+      </div>
+    `
+
+    // Aggiungi il div al body per renderizzarlo
+    document.body.appendChild(ricevutaContainer)
+
+    try {
+      // Converti il div in canvas
+      const canvas = await html2canvas(ricevutaContainer, {
+        scale: 2,
+        useCORS: true,
+        logging: false
+      })
+
+      // Rimuovi il div temporaneo
+      document.body.removeChild(ricevutaContainer)
+
+      // Converti il canvas in PDF
+      const imgData = canvas.toDataURL('image/png')
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      })
+
+      const imgWidth = 210 // A4 width in mm
+      const pageHeight = 297 // A4 height in mm
+      const imgHeight = (canvas.height * imgWidth) / canvas.width
+      
+      pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight)
+
+      if (visualizza) {
+        // Crea un elemento iframe nascosto per visualizzare il PDF
+        const pdfOutput = pdf.output('bloburl');
+        const iframe = document.createElement('iframe');
+        iframe.style.position = 'fixed';
+        iframe.style.right = '0';
+        iframe.style.bottom = '0';
+        iframe.style.width = '100%';
+        iframe.style.height = '100%';
+        iframe.style.border = 'none';
+        iframe.style.zIndex = '9999';
+        iframe.src = pdfOutput;
+        
+        // Aggiungi un pulsante di chiusura
+        const closeButton = document.createElement('button');
+        closeButton.innerText = '✕ Chiudi';
+        closeButton.style.position = 'fixed';
+        closeButton.style.right = '20px';
+        closeButton.style.top = '20px';
+        closeButton.style.zIndex = '10000';
+        closeButton.style.padding = '8px 16px';
+        closeButton.style.backgroundColor = '#f44336';
+        closeButton.style.color = 'white';
+        closeButton.style.border = 'none';
+        closeButton.style.borderRadius = '4px';
+        closeButton.style.cursor = 'pointer';
+        
+        closeButton.onclick = function() {
+          document.body.removeChild(iframe);
+          document.body.removeChild(closeButton);
+        };
+        
+        document.body.appendChild(iframe);
+        document.body.appendChild(closeButton);
+        
+        toast.success('Ricevuta PDF visualizzata');
+      } else {
+        // Salva il PDF come file
+        pdf.save(`Ricevuta-${pagamento.value._id.slice(-8).toUpperCase()}.pdf`);
+        toast.success('Ricevuta PDF scaricata con successo');
+      }
+    } catch (error) {
+      console.error('Errore nella generazione del PDF:', error)
+      // Assicurati di rimuovere il div temporaneo anche in caso di errore
+      if (document.body.contains(ricevutaContainer)) {
+        document.body.removeChild(ricevutaContainer)
+      }
+      throw error
+    }
+  } catch (error) {
+    console.error('Errore nella creazione della ricevuta:', error)
+    toast.error('Errore nella generazione della ricevuta PDF')
   }
 }
 
