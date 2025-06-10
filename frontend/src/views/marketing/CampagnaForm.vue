@@ -1,34 +1,45 @@
 <!-- filepath: /home/mirco/Documents/Dev/saloon-crm/frontend/src/views/marketing/CampagnaForm.vue -->
 <template>
-  <div class="p-6">
-    <div class="flex justify-between items-center mb-6">
-      <div>
-        <h1 class="text-3xl font-bold text-gray-900">
+  <div class="space-y-6">
+    <!-- Header -->
+    <div class="sm:flex sm:items-center sm:justify-between">
+      <div class="sm:flex-auto">
+        <h1 class="text-2xl font-bold text-gray-900">
           {{ isEditing ? 'Modifica Campagna' : 'Nuova Campagna' }}
         </h1>
-        <p class="text-gray-600 mt-1">
+        <p class="mt-2 text-sm text-gray-700">
           {{ isEditing ? 'Modifica i dettagli della campagna' : 'Crea una nuova campagna di marketing' }}
         </p>
       </div>
-      <router-link
-        to="/marketing/campagne"
-        class="bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition-colors"
-      >
-        <ArrowLeft class="w-4 h-4 inline mr-2" />
-        Torna alle Campagne
-      </router-link>
+      <div class="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
+        <router-link
+          to="/marketing/campagne"
+          class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        >
+          <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
+          Torna alle Campagne
+        </router-link>
+      </div>
     </div>
 
     <!-- Loading -->
-    <div v-if="loading" class="flex justify-center py-8">
-      <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+    <div v-if="loading" class="bg-white shadow rounded-lg">
+      <div class="px-4 py-5 sm:p-6">
+        <div class="flex justify-center items-center py-8">
+          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+          <span class="ml-3 text-gray-600">{{ isEditing ? 'Caricamento campagna...' : 'Preparazione form...' }}</span>
+        </div>
+      </div>
     </div>
 
     <!-- Form -->
     <div v-else class="max-w-4xl mx-auto">
-      <form @submit.prevent="salvaCampagna" class="space-y-8">
+      <form @submit.prevent="salvaCampagna" class="space-y-6">
         <!-- Informazioni Base -->
-        <div class="bg-white rounded-lg shadow p-6">
+        <div class="bg-white shadow rounded-lg">
+          <div class="px-4 py-5 sm:p-6">
           <h2 class="text-lg font-semibold text-gray-900 mb-4">Informazioni Base</h2>
           
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -67,6 +78,7 @@
               class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Descrizione della campagna (opzionale)"
             ></textarea>
+          </div>
           </div>
         </div>
 
