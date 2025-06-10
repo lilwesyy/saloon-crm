@@ -13,6 +13,8 @@ const AppuntamentoForm = () => import('@/views/appuntamenti/AppuntamentoForm.vue
 const Servizi = () => import('@/views/servizi/ServiziList.vue')
 const ServizioForm = () => import('@/views/servizi/ServizioForm.vue')
 const Pagamenti = () => import('@/views/pagamenti/PagamentiList.vue')
+const PagamentoForm = () => import('@/views/pagamenti/PagamentoForm.vue')
+const PagamentoDetail = () => import('@/views/pagamenti/PagamentoDetail.vue')
 const Reports = () => import('@/views/reports/Reports.vue')
 const NotFound = () => import('@/views/NotFound.vue')
 
@@ -135,6 +137,24 @@ const routes: Array<RouteRecordRaw> = [
     path: '/pagamenti',
     name: 'Pagamenti',
     component: Pagamenti,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/pagamenti/nuovo',
+    name: 'NuovoPagamento',
+    component: PagamentoForm,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/pagamenti/:id',
+    name: 'DettaglioPagamento',
+    component: PagamentoDetail,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/pagamenti/:id/modifica',
+    name: 'ModificaPagamento',
+    component: PagamentoForm,
     meta: { requiresAuth: true }
   },
   // Marketing routes
