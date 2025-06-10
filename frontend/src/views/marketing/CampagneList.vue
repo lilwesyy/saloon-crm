@@ -447,7 +447,6 @@
               <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
                 <button @click="prevPage" :disabled="pagination.current === 1"
                   class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50">
-                  <ChevronLeft class="h-5 w-5" />
                 </button>
 
                 <button v-for="page in visiblePages" :key="page" @click="goToPage(page)" :class="[
@@ -461,7 +460,6 @@
 
                 <button @click="nextPage" :disabled="pagination.current === pagination.pages"
                   class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50">
-                  <ChevronRight class="h-5 w-5" />
                 </button>
               </nav>
             </div>

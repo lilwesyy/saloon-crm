@@ -47,7 +47,7 @@
               class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
             >
               <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1m4 0h1m-6 4h.01M19 10a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
               Lancia Campagna
             </button>
@@ -102,7 +102,7 @@
               <div class="ml-5 w-0 flex-1">
                 <dl>
                   <dt class="text-sm font-medium text-gray-500 truncate">Invii</dt>
-                  <dd class="text-lg font-medium text-gray-900">{{ campagna.statistiche.invii || 0 }}</dd>
+                  <dd class="text-lg font-medium text-gray-900">{{ campagna.statistiche?.invii || 0 }}</dd>
                 </dl>
               </div>
             </div>
@@ -123,7 +123,7 @@
               <div class="ml-5 w-0 flex-1">
                 <dl>
                   <dt class="text-sm font-medium text-gray-500 truncate">Aperture</dt>
-                  <dd class="text-lg font-medium text-gray-900">{{ campagna.statistiche.aperture || 0 }}</dd>
+                  <dd class="text-lg font-medium text-gray-900">{{ campagna.statistiche?.aperture || 0 }}</dd>
                 </dl>
               </div>
             </div>
@@ -143,7 +143,7 @@
               <div class="ml-5 w-0 flex-1">
                 <dl>
                   <dt class="text-sm font-medium text-gray-500 truncate">Click</dt>
-                  <dd class="text-lg font-medium text-gray-900">{{ campagna.statistiche.click || 0 }}</dd>
+                  <dd class="text-lg font-medium text-gray-900">{{ campagna.statistiche?.click || 0 }}</dd>
                 </dl>
               </div>
             </div>
@@ -163,7 +163,7 @@
               <div class="ml-5 w-0 flex-1">
                 <dl>
                   <dt class="text-sm font-medium text-gray-500 truncate">Risposte</dt>
-                  <dd class="text-lg font-medium text-gray-900">{{ campagna.statistiche.risposte || 0 }}</dd>
+                  <dd class="text-lg font-medium text-gray-900">{{ campagna.statistiche?.risposte || 0 }}</dd>
                 </dl>
               </div>
             </div>
@@ -183,7 +183,7 @@
               <div class="ml-5 w-0 flex-1">
                 <dl>
                   <dt class="text-sm font-medium text-gray-500 truncate">Conversioni</dt>
-                  <dd class="text-lg font-medium text-gray-900">{{ campagna.statistiche.conversioni || 0 }}</dd>
+                  <dd class="text-lg font-medium text-gray-900">{{ campagna.statistiche?.conversioni || 0 }}</dd>
                 </dl>
               </div>
             </div>
@@ -199,21 +199,21 @@
             <h2 class="text-lg font-semibold text-gray-900 mb-4">Contenuto</h2>
             
             <div class="space-y-4">
-              <div v-if="campagna.contenuto.oggetto">
+              <div v-if="campagna.contenuto?.oggetto">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Oggetto</label>
-                <p class="text-gray-900 bg-gray-50 p-3 rounded-md">{{ campagna.contenuto.oggetto }}</p>
+                <p class="text-gray-900 bg-gray-50 p-3 rounded-md">{{ campagna.contenuto?.oggetto }}</p>
               </div>
               
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">
                   {{ campagna.tipo === 'email' ? 'Corpo Email' : 'Messaggio' }}
                 </label>
-                <div class="text-gray-900 bg-gray-50 p-3 rounded-md whitespace-pre-wrap">{{ campagna.contenuto.corpo }}</div>
+                <div class="text-gray-900 bg-gray-50 p-3 rounded-md whitespace-pre-wrap">{{ campagna.contenuto?.corpo || '' }}</div>
               </div>
               
-              <div v-if="campagna.contenuto.templateHtml">
+              <div v-if="campagna.contenuto?.templateHtml">
                 <label class="block text-sm font-medium text-gray-700 mb-1">Template HTML</label>
-                <pre class="text-sm text-gray-600 bg-gray-50 p-3 rounded-md overflow-x-auto">{{ campagna.contenuto.templateHtml }}</pre>
+                <pre class="text-sm text-gray-600 bg-gray-50 p-3 rounded-md overflow-x-auto">{{ campagna.contenuto?.templateHtml }}</pre>
               </div>
             </div>
           </div>
@@ -229,15 +229,15 @@
               <div class="space-y-3">
                 <div>
                   <label class="block text-sm font-medium text-gray-700 mb-1">Tipo di Segmentazione</label>
-                  <p class="text-gray-900">{{ getSegmentazioneLabel(campagna.segmentazione.tipo) }}</p>
+                  <p class="text-gray-900">{{ getSegmentazioneLabel(campagna.segmentazione?.tipo) }}</p>
                 </div>
                 
-                <div v-if="campagna.segmentazione.criteri">
+                <div v-if="campagna.segmentazione?.criteri">
                   <label class="block text-sm font-medium text-gray-700 mb-1">Criteri</label>
                   <pre class="text-sm text-gray-600 bg-gray-50 p-3 rounded-md">{{ 
-                    typeof campagna.segmentazione.criteri === 'object' 
-                      ? JSON.stringify(campagna.segmentazione.criteri, null, 2)
-                      : campagna.segmentazione.criteri 
+                    typeof campagna.segmentazione?.criteri === 'object' 
+                      ? JSON.stringify(campagna.segmentazione?.criteri, null, 2)
+                      : campagna.segmentazione?.criteri 
                   }}</pre>
                 </div>
                 
@@ -267,20 +267,20 @@
               <div class="space-y-3">
                 <div>
                   <label class="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
-                  <p class="text-gray-900">{{ getProgrammazioneLabel(campagna.programmazione.tipo) }}</p>
+                  <p class="text-gray-900">{{ getProgrammazioneLabel(campagna.programmazione?.tipo) }}</p>
                 </div>
                 
-                <div v-if="campagna.programmazione.dataInizio">
+                <div v-if="campagna.programmazione?.dataInizio">
                   <label class="block text-sm font-medium text-gray-700 mb-1">Data Inizio</label>
-                  <p class="text-gray-900">{{ formatDate(campagna.programmazione.dataInizio) }}</p>
+                  <p class="text-gray-900">{{ formatDate(campagna.programmazione?.dataInizio) }}</p>
                 </div>
                 
-                <div v-if="campagna.programmazione.dataFine">
+                <div v-if="campagna.programmazione?.dataFine">
                   <label class="block text-sm font-medium text-gray-700 mb-1">Data Fine</label>
-                  <p class="text-gray-900">{{ formatDate(campagna.programmazione.dataFine) }}</p>
+                  <p class="text-gray-900">{{ formatDate(campagna.programmazione?.dataFine) }}</p>
                 </div>
                 
-                <div v-if="campagna.programmazione.ricorrenza?.tipo !== 'nessuna'">
+                <div v-if="campagna.programmazione?.ricorrenza?.tipo !== 'nessuna'">
                   <label class="block text-sm font-medium text-gray-700 mb-1">Ricorrenza</label>
                   <p class="text-gray-900">{{ campagna.programmazione.ricorrenza?.tipo }}</p>
                 </div>

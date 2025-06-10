@@ -24,12 +24,12 @@
       <!-- User menu -->
       <div class="flex items-center space-x-4">
         <!-- Prenotazione Online Button -->
-        <a href="/prenotazione-online" target="_blank" class="flex items-center p-2 text-purple-600 hover:text-purple-800 hover:bg-purple-50 rounded-md">
+        <button @click="handlePrenotazioneOnlineClick" class="flex items-center p-2 text-purple-600 hover:text-purple-800 hover:bg-purple-50 rounded-md">
           <svg class="h-5 w-5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
           </svg>
           <span class="hidden md:inline font-medium text-sm">Prenotazione Online</span>
-        </a>
+        </button>
         
         <!-- Notifications -->
         <button class="p-2 text-gray-400 hover:text-gray-500 relative">
@@ -93,6 +93,56 @@
         </div>
       </div>
     </div>
+
+    <!-- Modal per prenotazioni online disabilitate -->
+    <div v-if="showBookingDisabledModal" class="fixed z-50 inset-0 overflow-y-auto">
+      <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 transition-opacity" @click="showBookingDisabledModal = false">
+          <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+        </div>
+
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+        <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+          <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+            <div class="sm:flex sm:items-start">
+              <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-yellow-100 sm:mx-0 sm:h-10 sm:w-10">
+                <svg class="h-6 w-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.732 15.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+              </div>
+              <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">
+                  Prenotazioni Online Disabilitate
+                </h3>
+                <div class="mt-2">
+                  <p class="text-sm text-gray-500">
+                    Le prenotazioni online sono attualmente disabilitate. Per attivare questa funzionalità, 
+                    vai alle impostazioni di sistema e abilita le prenotazioni online.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+            <button
+              @click="goToSettings"
+              type="button"
+              class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-purple-600 text-base font-medium text-white hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 sm:ml-3 sm:w-auto sm:text-sm"
+            >
+              Vai alle Impostazioni
+            </button>
+            <button
+              @click="showBookingDisabledModal = false"
+              type="button"
+              class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+            >
+              Chiudi
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </header>
 </template>
 
@@ -106,6 +156,7 @@ const emit = defineEmits(['toggle-sidebar'])
 const authStore = useAuthStore()
 const settingsStore = useSettingsStore()
 const showUserMenu = ref(false)
+const showBookingDisabledModal = ref(false)
 const userMenuRef = ref<HTMLElement>()
 
 const getUserInitials = computed(() => {
@@ -124,6 +175,23 @@ const handleClickOutside = (event: Event) => {
   if (userMenuRef.value && !userMenuRef.value.contains(event.target as Node)) {
     showUserMenu.value = false
   }
+}
+
+const handlePrenotazioneOnlineClick = () => {
+  // Verifica se le prenotazioni online sono abilitate
+  if (!settingsStore.prenotazioniOnlineAbilitate) {
+    showBookingDisabledModal.value = true
+    return
+  }
+  
+  // Se sono abilitate, apri in una nuova finestra
+  window.open('/prenotazione-online', '_blank')
+}
+
+const goToSettings = () => {
+  showBookingDisabledModal.value = false
+  // Usa window.location per navigare alle impostazioni
+  window.location.href = '/impostazioni'
 }
 
 onMounted(() => {
