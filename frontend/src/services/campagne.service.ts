@@ -161,7 +161,42 @@ class CampagneService {
   }
   
   async getStatistiche(): Promise<CampagnaStatistiche> {
-    return apiClient.get('/statistiche')
+    const response: any = await apiClient.get('/statistiche')
+    
+    // Il backend restituisce { generale: {...}, perTipo: [...] }
+    // Ma il frontend si aspetta le proprietà direttamente
+    if (response.generale) {
+      return {
+        totaleCampagne: response.generale.totaleCampagne || 0,
+        campagneAttive: response.generale.campagneAttive || 0,
+        totaleInvii: response.generale.totaleInvii || 0,
+        totaleAperture: response.generale.totaleAperture || 0,
+        totaleClick: response.generale.totaleClick || 0,
+        totaleRisposte: response.generale.totaleRisposte || 0,
+        tassoApertura: response.generale.totaleInvii > 0 
+          ? Math.round((response.generale.totaleAperture / response.generale.totaleInvii) * 100) 
+          : 0,
+        tassoClick: response.generale.totaleAperture > 0 
+          ? Math.round((response.generale.totaleClick / response.generale.totaleAperture) * 100) 
+          : 0,
+        tassoRisposta: response.generale.totaleInvii > 0 
+          ? Math.round((response.generale.totaleRisposte / response.generale.totaleInvii) * 100) 
+          : 0
+      }
+    }
+    
+    // Fallback se la struttura è diversa - restituisce valori di default
+    return {
+      totaleCampagne: 0,
+      campagneAttive: 0,
+      totaleInvii: 0,
+      totaleAperture: 0,
+      totaleClick: 0,
+      totaleRisposte: 0,
+      tassoApertura: 0,
+      tassoClick: 0,
+      tassoRisposta: 0
+    }
   }
   
   async getStatisticheCampagna(id: string): Promise<any> {
