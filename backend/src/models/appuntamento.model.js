@@ -8,10 +8,13 @@ const appuntamentoSchema = new Schema({
     ref: 'Cliente',
     required: true 
   },
-  servizi: [{ 
-    servizio: { type: Schema.Types.ObjectId, ref: 'Servizio', required: true },
-    prezzo: { type: Number, required: true } // prezzo applicato (potrebbe essere scontato)
-  }],
+  servizi: { 
+    type: [{
+      servizio: { type: Schema.Types.ObjectId, ref: 'Servizio', required: true },
+      prezzo: { type: Number, required: true } // prezzo applicato (potrebbe essere scontato)
+    }],
+    validate: [array => array.length > 0, 'È necessario specificare almeno un servizio per l\'appuntamento']
+  },
   operatore: { 
     type: Schema.Types.ObjectId, 
     ref: 'User',

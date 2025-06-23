@@ -1,0 +1,16 @@
+module.exports = {
+  testEnvironment: 'node',
+  testMatch: ['**/tests/**/*.test.js'],
+  verbose: true,
+  collectCoverage: true,
+  coverageDirectory: './coverage',
+  coverageReporters: ['text', 'lcov', 'html'],
+  setupFilesAfterEnv: ['./tests/setup.js', 'jest-extended/all'],
+  testTimeout: 15000,
+  forceExit: true,
+  clearMocks: true,
+  restoreMocks: true,
+  coveragePathIgnorePatterns: ['/node_modules/', '/tests/'],
+  testPathIgnorePatterns: ['/node_modules/'],
+  watchPathIgnorePatterns: ['/node_modules/'],
+};

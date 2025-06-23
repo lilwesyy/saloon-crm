@@ -312,3 +312,47 @@ Per assistenza tecnica o informazioni:
 - **Testing**: Utilizzare gli script di test inclusi prima di deployment
 - **Seeding**: Popolare sempre con dati realistici per testing UX
 - **Code Quality**: Mantenere pulizia del codice (no debug logs in produzione)
+
+## 🤖 TODO: AI Integration Roadmap
+
+Il CRM può essere potenziato con le seguenti integrazioni di intelligenza artificiale:
+
+### 1. Previsione e Ottimizzazione degli Appuntamenti
+- Analisi pattern storici per suggerire slot orari ottimali
+- Prevenzione sovrapposizioni e ottimizzazione agenda operatori
+- Raccomandazione giorni/orari con maggiore probabilità di conversione
+
+### 2. Rilevamento dei Clienti a Rischio Abbandono
+- Sistema predittivo per identificare clienti inattivi
+- Analisi pattern comportamentali (frequenza e distanza tra appuntamenti)
+- Alert automatici per clienti a rischio con promemoria di ricontatto
+
+### 3. Raccomandazione Servizi Personalizzati
+- Suggerimenti di trattamenti basati su preferenze storiche
+- Up-selling intelligente con pacchetti personalizzati
+- Notifiche automatiche per complementi di servizio
+
+### 4. Previsione Inventario e Gestione Prodotti
+- Previsione di consumo basata sugli appuntamenti futuri
+- Notifiche automatiche per riordino prodotti
+- Ottimizzazione scorte in base a stagionalità
+
+### 5. Analisi del Sentiment e Feedback Clienti
+- Analisi automatica delle note post-trattamento
+- Identificazione di pattern di soddisfazione/insoddisfazione
+- Suggerimenti di miglioramento servizio
+
+### 6. Chatbot per Prenotazioni Online
+- Assistente virtuale per prenotazioni sul sito web
+- Risposte automatiche a domande frequenti
+- Suggerimento disponibilità in tempo reale
+
+### 7. Previsione di Business Intelligence
+- Dashboard predittiva per fatturato futuro
+- Identificazione trend stagionali
+- Analisi comparativa performance operatori
+
+### 8. Sistema di Pricing Dinamico
+- Aggiustamento prezzi in base a domanda/offerta
+- Suggerimenti sconti strategici per fasce orarie meno richieste
+- Ottimizzazione revenue giornaliero

@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  # Frontend container for running tests
+  frontend-test:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.frontend
+    environment:
+      - NODE_ENV=test
+      - VUE_APP_API_URL=http://backend-test:3000/api
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    command: >
+      sh -c "npm ci && 
+             npm run test:unit &&
+             npm run test:e2e:headless"
+    depends_on:
+      - backend-test
+
+  # Backend container for API testing
+  backend-test:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.backend
+    environment:
+      - NODE_ENV=test
+      - MONGODB_URI=mongodb://mongodb-test:27017/estetica_crm_test
+      - PORT=3000
+      - JWT_SECRET=test_secret_key
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    command: >
+      sh -c "npm ci &&
+             npm start"
+    depends_on:
+      - mongodb-test
+
+  # MongoDB container for testing
+  mongodb-test:
+    image: mongo:6
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongodb_test_data:/data/db
+    command: mongod --noauth
+
+  # Cypress container for E2E tests
+  cypress:
+    image: cypress/included:13.6.0
+    environment:
+      - CYPRESS_baseUrl=http://frontend-test:8080
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    working_dir: /app
+    depends_on:
+      - frontend-test
+    command: npx cypress run
+
+volumes:
+  mongodb_test_data:

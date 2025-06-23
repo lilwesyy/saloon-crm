@@ -11,6 +11,14 @@ Un sistema CRM completo per centri estetici, sviluppato con Vue.js (frontend), N
 - Preferenze e note personali
 - Gestione consensi privacy e marketing
 - Classificazione clienti (nuovi, fedeli, inattivi)
+- Ricerca avanzata con filtri multipli
+- Sistema di paginazione e ordinamento
+- Statistiche dettagliate sulla clientela
+- Programma fedeltà con:
+  - Accumulo e gestione punti
+  - Livelli di fedeltà (bronzo, argento, oro, platino)
+  - Sistema di premi e riscatti
+- Gestione data ultima visita per monitoraggio frequenza
 
 ### Agenda e Appuntamenti
 - Calendario con vista giornaliera/settimanale/mensile
@@ -78,3 +86,25 @@ Un sistema CRM completo per centri estetici, sviluppato con Vue.js (frontend), N
 - Performance ottimizzate
 - Sicurezza e protezione dati personali (GDPR)
 - Interfaccia intuitiva per operatori non tecnici
+
+## Integrazioni AI Pianificate
+
+### Ottimizzazione Operativa
+- **Previsione Appuntamenti**: Sistema AI che analizza pattern storici per ottimizzare l'agenda
+- **Gestione Inventario Predittiva**: Previsione automatica del fabbisogno prodotti basata su appuntamenti futuri
+- **Pricing Dinamico**: Adattamento intelligente dei prezzi in base a domanda, orari e stagionalità
+
+### Customer Experience
+- **Raccomandazione Servizi**: Sistema di suggerimento trattamenti personalizzati basato sullo storico cliente
+- **Rilevamento Clienti a Rischio**: Identificazione predittiva di clienti con alta probabilità di abbandono
+- **Analisi Sentiment**: Elaborazione automatica del feedback e delle note per misurare la soddisfazione
+
+### Automazione Marketing
+- **Chatbot Prenotazioni**: Assistente virtuale per la gestione delle prenotazioni online
+- **Segmentazione Clienti AI-Driven**: Categorizzazione avanzata della clientela per campagne mirate
+- **Timing Intelligente**: Ottimizzazione automatica dei momenti migliori per comunicazioni marketing
+
+### Business Intelligence
+- **Dashboard Predittiva**: Previsioni su fatturato, affluenza e trend basate su modelli ML
+- **Analisi Comparative**: Benchmark automatici di performance tra periodi, servizi e operatori
+- **Ottimizzazione Revenue**: Suggerimenti data-driven per massimizzare il fatturato

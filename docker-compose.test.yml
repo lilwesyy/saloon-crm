@@ -1,0 +1,41 @@
+version: '3'
+
+services:
+  # MongoDB per i test
+  mongodb-test:
+    image: mongo:7-jammy
+    container_name: saloon-mongo-test
+    restart: unless-stopped
+    ports:
+      - "27018:27017"
+    environment:
+      MONGO_INITDB_DATABASE: esteticacrm_test
+    networks:
+      - saloon-test-network
+
+  # Backend per i test
+  backend-test:
+    build:
+      context: ./backend
+      dockerfile: ../Dockerfile.backend
+    container_name: saloon-backend-test
+    restart: unless-stopped
+    ports:
+      - "3001:3000"
+    environment:
+      - NODE_ENV=test
+      - MONGODB_URI=mongodb://mongodb-test:27017/esteticacrm_test
+      - JWT_SECRET=test-jwt-secret
+      - PORT=3000
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    depends_on:
+      - mongodb-test
+    networks:
+      - saloon-test-network
+    command: npm test
+
+networks:
+  saloon-test-network:
+    driver: bridge

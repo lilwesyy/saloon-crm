@@ -5,7 +5,12 @@ const { Schema } = mongoose;
 const clienteSchema = new Schema({
   nome: { type: String, required: true },
   cognome: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
+  email: { 
+    type: String, 
+    required: true, 
+    unique: true,
+    match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, 'Inserire un indirizzo email valido'] 
+  },
   telefono: { type: String, required: true },
   dataNascita: { type: Date },
   indirizzo: {
