@@ -102,20 +102,25 @@ describe('Cliente Model Test', () => {
       });
       
       // Salva il cliente
-      await cliente.save();
+      const savedCliente = await cliente.save();
+      expect(savedCliente._id).toBeDefined();
       
       // Salva il timestamp originale
-      const originalTimestamp = cliente.updatedAt;
+      const originalTimestamp = savedCliente.updatedAt;
       
       // Attendi un momento per assicurarti che il timestamp cambi
       await new Promise(resolve => setTimeout(resolve, 100));
       
+      // Recupera il cliente dal database
+      const foundCliente = await Cliente.findById(savedCliente._id);
+      expect(foundCliente).not.toBeNull();
+      
       // Modifica e salva nuovamente il cliente
-      cliente.nome = 'Giuseppe';
-      await cliente.save();
+      foundCliente.nome = 'Giuseppe';
+      const updatedCliente = await foundCliente.save();
       
       // Verifica che il timestamp di aggiornamento sia stato modificato
-      expect(cliente.updatedAt).not.toEqual(originalTimestamp);
+      expect(updatedCliente.updatedAt).not.toEqual(originalTimestamp);
     });
   });
   

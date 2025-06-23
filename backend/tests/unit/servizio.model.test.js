@@ -90,20 +90,25 @@ describe('Servizio Model Test', () => {
         attivo: true
       });
       
-      await servizio.save();
-      
+      const savedServizio = await servizio.save();
+      expect(savedServizio._id).toBeDefined();
+
       // Salva il timestamp originale
-      const originalTimestamp = servizio.updatedAt;
+      const originalTimestamp = savedServizio.updatedAt;
       
       // Attendi un momento per assicurarti che il timestamp cambi
       await new Promise(resolve => setTimeout(resolve, 100));
       
+      // Recupera il servizio dal database
+      const foundServizio = await Servizio.findById(savedServizio._id);
+      expect(foundServizio).not.toBeNull();
+
       // Modifica e salva nuovamente il servizio
-      servizio.prezzo = 35;
-      await servizio.save();
+      foundServizio.prezzo = 35;
+      const updatedServizio = await foundServizio.save();
       
       // Verifica che il timestamp di aggiornamento sia stato modificato
-      expect(servizio.updatedAt).not.toEqual(originalTimestamp);
+      expect(updatedServizio.updatedAt).not.toEqual(originalTimestamp);
     });
     
     it('dovrebbe attivare/disattivare il servizio correttamente', async () => {
