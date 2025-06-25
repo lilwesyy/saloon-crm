@@ -8,6 +8,7 @@ module.exports = defineConfig({
     port: 8080,
     host: '0.0.0.0',
     allowedHosts: 'all',
+    historyApiFallback: true,
     proxy: {
       '/api': {
         target: 'http://backend:3000',

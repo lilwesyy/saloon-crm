@@ -49,7 +49,7 @@ describe('Programma Fedeltà Store', () => {
       }
     ];
     
-    axios.get.mockResolvedValue({ data: mockProgrammi });
+    mockedAxios.get.mockResolvedValue({ data: mockProgrammi });
     
     // Call the action
     await store.fetchProgrammiFedelta();
@@ -59,7 +59,7 @@ describe('Programma Fedeltà Store', () => {
     expect(store.loading).toBe(false);
     expect(store.error).toBe(null);
     // Check if the correct API endpoint was called
-    expect(axios.get).toHaveBeenCalledWith('/api/programma-fedelta');
+    expect(mockedAxios.get).toHaveBeenCalledWith('/api/programma-fedelta');
   });
   
   it('fetches a single programma fedeltà', async () => {
@@ -74,7 +74,7 @@ describe('Programma Fedeltà Store', () => {
       ]
     };
     
-    axios.get.mockResolvedValue({ data: mockProgramma });
+    mockedAxios.get.mockResolvedValue({ data: mockProgramma });
     
     // Call the action
     await store.fetchProgrammaById('p1');
@@ -84,7 +84,7 @@ describe('Programma Fedeltà Store', () => {
     expect(store.loading).toBe(false);
     expect(store.error).toBe(null);
     // Check if the correct API endpoint was called
-    expect(axios.get).toHaveBeenCalledWith('/api/programma-fedelta/p1');
+    expect(mockedAxios.get).toHaveBeenCalledWith('/api/programma-fedelta/p1');
   });
   
   it('creates a new programma fedeltà', async () => {
@@ -102,13 +102,13 @@ describe('Programma Fedeltà Store', () => {
       ...newProgramma
     };
     
-    axios.post.mockResolvedValue({ data: createdProgramma });
+    mockedAxios.post.mockResolvedValue({ data: createdProgramma });
     
     // Call the action
     await store.createProgramma(newProgramma);
     
     // Check if the correct API endpoint was called with the right data
-    expect(axios.post).toHaveBeenCalledWith('/api/programma-fedelta', newProgramma);
+    expect(mockedAxios.post).toHaveBeenCalledWith('/api/programma-fedelta', newProgramma);
     // Check if the programma is added to the list
     expect(store.programmi).toContain(createdProgramma);
   });
@@ -137,13 +137,13 @@ describe('Programma Fedeltà Store', () => {
       ]
     };
     
-    axios.put.mockResolvedValue({ data: updatedProgramma });
+    mockedAxios.put.mockResolvedValue({ data: updatedProgramma });
     
     // Call the action
     await store.updateProgramma(updatedProgramma);
     
     // Check if the correct API endpoint was called with the right data
-    expect(axios.put).toHaveBeenCalledWith('/api/programma-fedelta/p1', updatedProgramma);
+    expect(mockedAxios.put).toHaveBeenCalledWith('/api/programma-fedelta/p1', updatedProgramma);
     // Check if the programma is updated in the list
     expect(store.programmi[0]).toEqual(updatedProgramma);
   });
@@ -169,13 +169,13 @@ describe('Programma Fedeltà Store', () => {
       }
     ];
     
-    axios.delete.mockResolvedValue({ status: 200 });
+    mockedAxios.delete.mockResolvedValue({ status: 200 });
     
     // Call the action
     await store.deleteProgramma('p1');
     
     // Check if the correct API endpoint was called
-    expect(axios.delete).toHaveBeenCalledWith('/api/programma-fedelta/p1');
+    expect(mockedAxios.delete).toHaveBeenCalledWith('/api/programma-fedelta/p1');
     // Check if the programma is removed from the list
     expect(store.programmi.length).toBe(1);
     expect(store.programmi[0]._id).toBe('p2');
@@ -184,7 +184,7 @@ describe('Programma Fedeltà Store', () => {
   it('handles API errors', async () => {
     // Mock API error
     const error = { response: { data: { message: 'Server error' }, status: 500 } };
-    axios.get.mockRejectedValue(error);
+    mockedAxios.get.mockRejectedValue(error);
     
     // Call the action
     await store.fetchProgrammiFedelta();
@@ -211,13 +211,13 @@ describe('Programma Fedeltà Store', () => {
       ]
     };
     
-    axios.post.mockResolvedValue({ data: mockResponse });
+    mockedAxios.post.mockResolvedValue({ data: mockResponse });
     
     // Call the action
     const result = await store.aggiungiPunti(puntiData);
     
     // Check if the correct API endpoint was called with the right data
-    expect(axios.post).toHaveBeenCalledWith('/api/programma-fedelta/cliente/c1/punti', puntiData);
+    expect(mockedAxios.post).toHaveBeenCalledWith('/api/programma-fedelta/cliente/c1/punti', puntiData);
     // Check the returned result
     expect(result).toEqual(mockResponse);
   });
@@ -243,13 +243,13 @@ describe('Programma Fedeltà Store', () => {
       ]
     };
     
-    axios.post.mockResolvedValue({ data: mockResponse });
+    mockedAxios.post.mockResolvedValue({ data: mockResponse });
     
     // Call the action
     const result = await store.riscattaPremio(premioData);
     
     // Check if the correct API endpoint was called with the right data
-    expect(axios.post).toHaveBeenCalledWith('/api/programma-fedelta/cliente/c1/premio', premioData);
+    expect(mockedAxios.post).toHaveBeenCalledWith('/api/programma-fedelta/cliente/c1/premio', premioData);
     // Check the returned result
     expect(result).toEqual(mockResponse);
   });

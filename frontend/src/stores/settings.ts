@@ -42,8 +42,21 @@ export const useSettingsStore = defineStore('settings', () => {
       
       loaded.value = true
     } catch (err: any) {
-      error.value = err.message || 'Errore durante il caricamento delle impostazioni'
-      console.error('Errore nel recupero delle impostazioni di sistema:', err)
+      // Se l'errore è di autorizzazione (401/403), non considerarlo un errore critico
+      if (err.message === 'Autenticazione richiesta' || err.message?.includes('401') || err.message?.includes('403')) {
+        console.log('Utente non autorizzato a caricare le impostazioni di sistema - questo è normale per utenti non admin')
+        // Usa valori predefiniti senza mostrare errori
+        businessName.value = 'Centro Estetico CRM'
+        businessPhone.value = ''
+        businessEmail.value = 'info@centroestetico.it'
+        businessAddress.value = ''
+        openingHours.value = ''
+        prenotazioniOnlineAbilitate.value = true
+        loaded.value = true // Mark as loaded to prevent repeated API calls
+      } else {
+        error.value = err.message || 'Errore durante il caricamento delle impostazioni'
+        console.error('Errore nel recupero delle impostazioni di sistema:', err)
+      }
     } finally {
       loading.value = false
     }

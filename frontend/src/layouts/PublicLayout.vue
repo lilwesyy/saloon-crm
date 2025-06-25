@@ -6,7 +6,7 @@
         <div class="flex justify-between items-center h-16">
           <!-- Logo/Brand -->
           <div class="flex items-center">
-            <router-link to="/prenotazione-online" class="flex items-center">
+            <router-link to="/home" class="flex items-center">
               <div class="w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center mr-3">
                 <i class="fas fa-spa text-white text-sm"></i>
               </div>
@@ -14,15 +14,35 @@
             </router-link>
           </div>
 
-          <!-- Info contatto -->
-          <div class="hidden md:flex items-center space-x-6 text-sm text-gray-600">
-            <div class="flex items-center">
-              <i class="fas fa-phone text-blue-500 mr-2"></i>
-              <span>{{ telefono }}</span>
+          <!-- Info contatto e azioni -->
+          <div class="flex items-center space-x-6 text-sm">
+            <div class="hidden md:flex items-center space-x-6 text-gray-600">
+              <div class="flex items-center">
+                <i class="fas fa-phone text-blue-500 mr-2"></i>
+                <span>{{ telefono }}</span>
+              </div>
+              <div class="flex items-center">
+                <i class="fas fa-envelope text-blue-500 mr-2"></i>
+                <span>{{ email }}</span>
+              </div>
             </div>
-            <div class="flex items-center">
-              <i class="fas fa-envelope text-blue-500 mr-2"></i>
-              <span>{{ email }}</span>
+            
+            <!-- Pulsanti di autenticazione -->
+            <div class="flex items-center space-x-3">
+              <router-link 
+                v-if="authStore.isLoggedIn" 
+                to="/dashboard" 
+                class="bg-purple-600 text-white py-2 px-4 rounded-lg hover:bg-purple-700 transition-colors"
+              >
+                Dashboard
+              </router-link>
+              <router-link 
+                v-else 
+                to="/login" 
+                class="bg-gray-100 text-gray-800 py-2 px-4 rounded-lg hover:bg-gray-200 transition-colors"
+              >
+                Accedi
+              </router-link>
             </div>
           </div>
         </div>
@@ -68,8 +88,10 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import { useSettingsStore } from '@/stores/settings';
+import { useAuthStore } from '@/stores/auth';
 
 const settingsStore = useSettingsStore();
+const authStore = useAuthStore();
 
 // Riferimenti reattivi per i valori delle impostazioni
 const nomeAzienda = ref(settingsStore.businessName);

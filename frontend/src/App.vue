@@ -34,13 +34,14 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed, onMounted } from 'vue'
+import { defineComponent, ref, computed, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import Header from '@/components/layout/Header.vue'
 import Sidebar from '@/components/layout/Sidebar.vue'
 import Footer from '@/components/layout/Footer.vue'
 import Toast from '@/components/ui/Toast.vue'
 import { useSettingsStore } from '@/stores/settings'
+import { useAuthStore } from '@/stores/auth'
 
 export default defineComponent({
   name: 'App',
@@ -54,20 +55,37 @@ export default defineComponent({
     const route = useRoute()
     const isSidebarOpen = ref(false)
     const settingsStore = useSettingsStore()
+    const authStore = useAuthStore()
     
     // Pagine che non devono mostrare il layout principale
     const authPages = ['Login', 'NotFound']
     
-    // Pagine pubbliche (prenotazione online)
-    const publicPages = ['PrenotazioneOnline', 'ConfermaPrenotazione', 'CancellaPrenotazione']
+    // Pagine pubbliche (prenotazione online e landing page)
+    const publicPages = ['PrenotazioneOnline', 'ConfermaPrenotazione', 'CancellaPrenotazione', 'LandingPage', 'Home', 'HomeRoute']
     
     const isAuthPage = computed(() => {
       return authPages.includes(route.name as string) || publicPages.includes(route.name as string)
     })
     
-    // Carica le impostazioni del sistema all'avvio dell'applicazione
+    // Carica le impostazioni del sistema solo se l'utente è admin
+    const loadSystemSettingsIfAdmin = () => {
+      if (authStore.isLoggedIn && authStore.isAdmin) {
+        settingsStore.fetchSystemSettings()
+      }
+    }
+    
+    // Carica le impostazioni quando l'app si monta e l'utente è admin
     onMounted(() => {
-      settingsStore.fetchSystemSettings()
+      loadSystemSettingsIfAdmin()
+    })
+    
+    // Monitora i cambiamenti nell'autenticazione e carica le impostazioni quando necessario
+    watch(() => authStore.isLoggedIn, () => {
+      loadSystemSettingsIfAdmin()
+    })
+    
+    watch(() => authStore.isAdmin, () => {
+      loadSystemSettingsIfAdmin()
     })
     
     const toggleSidebar = () => {

@@ -28,11 +28,16 @@ const initApp = async () => {
   
   // Only check auth if we're not on a public route
   const currentPath = window.location.pathname
-  const publicRoutes = ['/prenotazione-online', '/prenotazione']
+  const publicRoutes = ['/', '/home', '/prenotazione-online', '/prenotazione']
   const isPublicRoute = publicRoutes.some(route => currentPath.startsWith(route))
   
+  console.log('🔍 InitApp - currentPath:', currentPath, 'isPublicRoute:', isPublicRoute)
+  
   if (!isPublicRoute) {
+    console.log('🔄 Calling checkAuth for protected route')
     await authStore.checkAuth()
+  } else {
+    console.log('✅ Public route, skipping checkAuth')
   }
   
   app.mount('#app')

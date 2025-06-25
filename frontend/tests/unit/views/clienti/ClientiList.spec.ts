@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { mount } from '@vue/test-utils';
 import { createTestingPinia } from '@pinia/testing';
+import { useRouter } from 'vue-router';
 import ClientiList from '@/views/clienti/ClientiList.vue';
 import { useClientiStore } from '@/stores/clienti';
 

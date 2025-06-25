@@ -111,8 +111,16 @@ describe('Cliente Model Test', () => {
       // Attendi un momento per assicurarti che il timestamp cambi
       await new Promise(resolve => setTimeout(resolve, 100));
       
-      // Recupera il cliente dal database
+      // Recupera il cliente dal database usando await per assicurarti che sia salvato
+      await new Promise(resolve => setTimeout(resolve, 50)); // Piccolo delay aggiuntivo
       const foundCliente = await Cliente.findById(savedCliente._id);
+      
+      // Debug log
+      if (!foundCliente) {
+        console.log('Cliente non trovato, ID:', savedCliente._id);
+        console.log('Tutti i clienti nel DB:', await Cliente.find({}));
+      }
+      
       expect(foundCliente).not.toBeNull();
       
       // Modifica e salva nuovamente il cliente

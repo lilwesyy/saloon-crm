@@ -1,10 +1,11 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, jest } from '@jest/globals';
 import { setActivePinia, createPinia } from 'pinia';
 import { useServiziStore } from '@/stores/servizi';
 import axios from 'axios';
 
 // Mock axios
-vi.mock('axios');
+jest.mock('axios');
+const mockedAxios = axios as jest.Mocked<typeof axios>;
 
 describe('Servizi Store', () => {
   let store;
@@ -44,7 +45,7 @@ describe('Servizi Store', () => {
       }
     ];
     
-    axios.get.mockResolvedValue({ data: mockServizi });
+    mockedAxios.get.mockResolvedValue({ data: mockServizi });
     
     // Call the action
     await store.fetchServizi();
@@ -54,7 +55,7 @@ describe('Servizi Store', () => {
     expect(store.loading).toBe(false);
     expect(store.error).toBe(null);
     // Check if the correct API endpoint was called
-    expect(axios.get).toHaveBeenCalledWith('/api/servizi');
+    expect(mockedAxios.get).toHaveBeenCalledWith('/api/servizi');
   });
   
   it('fetches a single servizio', async () => {
@@ -67,7 +68,7 @@ describe('Servizi Store', () => {
       prezzo: 20
     };
     
-    axios.get.mockResolvedValue({ data: mockServizio });
+    mockedAxios.get.mockResolvedValue({ data: mockServizio });
     
     // Call the action
     await store.fetchServizioById('s1');
@@ -77,7 +78,7 @@ describe('Servizi Store', () => {
     expect(store.loading).toBe(false);
     expect(store.error).toBe(null);
     // Check if the correct API endpoint was called
-    expect(axios.get).toHaveBeenCalledWith('/api/servizi/s1');
+    expect(mockedAxios.get).toHaveBeenCalledWith('/api/servizi/s1');
   });
   
   it('creates a new servizio', async () => {
@@ -94,13 +95,13 @@ describe('Servizi Store', () => {
       ...newServizio
     };
     
-    axios.post.mockResolvedValue({ data: createdServizio });
+    mockedAxios.post.mockResolvedValue({ data: createdServizio });
     
     // Call the action
     await store.createServizio(newServizio);
     
     // Check if the correct API endpoint was called with the right data
-    expect(axios.post).toHaveBeenCalledWith('/api/servizi', newServizio);
+    expect(mockedAxios.post).toHaveBeenCalledWith('/api/servizi', newServizio);
     // Check if the servizio is added to the list
     expect(store.servizi).toContain(createdServizio);
   });
@@ -126,13 +127,13 @@ describe('Servizi Store', () => {
       prezzo: 25
     };
     
-    axios.put.mockResolvedValue({ data: updatedServizio });
+    mockedAxios.put.mockResolvedValue({ data: updatedServizio });
     
     // Call the action
     await store.updateServizio(updatedServizio);
     
     // Check if the correct API endpoint was called with the right data
-    expect(axios.put).toHaveBeenCalledWith('/api/servizi/s1', updatedServizio);
+    expect(mockedAxios.put).toHaveBeenCalledWith('/api/servizi/s1', updatedServizio);
     // Check if the servizio is updated in the list
     expect(store.servizi[0]).toEqual(updatedServizio);
   });
@@ -156,13 +157,13 @@ describe('Servizi Store', () => {
       }
     ];
     
-    axios.delete.mockResolvedValue({ status: 200 });
+    mockedAxios.delete.mockResolvedValue({ status: 200 });
     
     // Call the action
     await store.deleteServizio('s1');
     
     // Check if the correct API endpoint was called
-    expect(axios.delete).toHaveBeenCalledWith('/api/servizi/s1');
+    expect(mockedAxios.delete).toHaveBeenCalledWith('/api/servizi/s1');
     // Check if the servizio is removed from the list
     expect(store.servizi.length).toBe(1);
     expect(store.servizi[0]._id).toBe('s2');
@@ -171,7 +172,7 @@ describe('Servizi Store', () => {
   it('handles API errors', async () => {
     // Mock API error
     const error = { response: { data: { message: 'Server error' }, status: 500 } };
-    axios.get.mockRejectedValue(error);
+    mockedAxios.get.mockRejectedValue(error);
     
     // Call the action
     await store.fetchServizi();

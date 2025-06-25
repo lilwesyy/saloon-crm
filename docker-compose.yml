@@ -27,6 +27,7 @@ services:
       - MONGODB_URI=mongodb://mongodb:27017/esteticacrm
       - JWT_SECRET=your-development-jwt-secret
       - PORT=3000
+      - AUTO_INIT_DB=true
     volumes:
       - ./backend:/app
       - /app/node_modules

@@ -10,6 +10,7 @@ export const useAuthStore = defineStore('auth', () => {
   const token = ref<string | null>(null)
   const loading = ref(false)
   const error = ref<string | null>(null)
+  const isInitialized = ref(false)
   
   // Getters
   const isLoggedIn = computed(() => {
@@ -40,8 +41,8 @@ export const useAuthStore = defineStore('auth', () => {
       localStorage.setItem('user', JSON.stringify(response.user))
       console.log('Token e utente salvati in localStorage')
       
-      // Redirect to home or intended page SOLO dopo successo
-      const redirectPath = router.currentRoute.value.query.redirect as string || '/'
+      // Redirect to dashboard or intended page SOLO dopo successo
+      const redirectPath = router.currentRoute.value.query.redirect as string || '/dashboard'
       console.log('Login completato con successo, reindirizzamento a:', redirectPath)
       await router.push(redirectPath)
       
@@ -69,7 +70,7 @@ export const useAuthStore = defineStore('auth', () => {
     currentUser.value = null
     localStorage.removeItem('token')
     localStorage.removeItem('user')
-    router.push('/login')
+    router.push('/home')
   }
   
   async function checkAuth() {
@@ -78,6 +79,7 @@ export const useAuthStore = defineStore('auth', () => {
     
     if (!savedToken) {
       console.log('checkAuth: nessun token trovato in localStorage')
+      isInitialized.value = true
       return false
     }
     
@@ -87,6 +89,7 @@ export const useAuthStore = defineStore('auth', () => {
       
       if (savedUser) {
         currentUser.value = JSON.parse(savedUser)
+        isInitialized.value = true
         return true
       }
       
@@ -96,6 +99,7 @@ export const useAuthStore = defineStore('auth', () => {
       console.log('checkAuth: utente recuperato con successo dall\'API', user)
       currentUser.value = user
       localStorage.setItem('user', JSON.stringify(user))
+      isInitialized.value = true
       return true
     } catch (err) {
       console.error('checkAuth: errore durante la verifica del token', err)
@@ -103,6 +107,7 @@ export const useAuthStore = defineStore('auth', () => {
       currentUser.value = null
       localStorage.removeItem('token')
       localStorage.removeItem('user')
+      isInitialized.value = true
       return false
     }
   }
@@ -129,6 +134,7 @@ export const useAuthStore = defineStore('auth', () => {
     token,
     loading,
     error,
+    isInitialized,
     
     // Getters
     isLoggedIn,

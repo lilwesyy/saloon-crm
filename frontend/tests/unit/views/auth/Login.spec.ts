@@ -26,8 +26,8 @@ describe('Login.vue', () => {
     })
     
     const authStore = useAuthStore()
-    // Mock login method
-    authStore.login = jest.fn()
+    // Mock login method properly
+    authStore.login = jest.fn().mockResolvedValue(true) as any
     
     return { wrapper, authStore }
   }
@@ -64,9 +64,6 @@ describe('Login.vue', () => {
   
   it('should call login method with email and password on form submit', async () => {
     const { wrapper, authStore } = renderComponent()
-    
-    // Mock successful login
-    authStore.login.mockResolvedValue(true)
     
     // Fill the form
     await wrapper.find('input[type="email"]').setValue('test@example.com')

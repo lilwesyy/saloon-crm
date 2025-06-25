@@ -157,7 +157,7 @@ describe('Appuntamenti Store', () => {
   describe('updateStatoAppuntamento', () => {
     it('should update appointment status when API call succeeds', async () => {
       const mockAppuntamentoId = '1'
-      const mockNewStatus = 'confermato' as const
+      const mockNewStatus = 'confermato'
       
       const mockAppuntamentoUpdated = {
         _id: mockAppuntamentoId,

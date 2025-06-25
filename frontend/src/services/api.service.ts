@@ -28,7 +28,7 @@ apiClient.interceptors.response.use(
     // Gestione errore 401 (token scaduto o non valido)
     if (error.response && error.response.status === 401) {
       const currentPath = window.location.pathname
-      const publicRoutes = ['/prenotazione-online', '/prenotazione']
+      const publicRoutes = ['/', '/home', '/prenotazione-online', '/prenotazione']
       const isPublicRoute = publicRoutes.some(route => currentPath.startsWith(route))
       
       // Non fare redirect automatico per rotte pubbliche o pagina di login
@@ -78,7 +78,7 @@ export const createApiClient = (endpoint: string) => {
       // Gestione errore 401 (token scaduto o non valido)
       if (error.response && error.response.status === 401) {
         const currentPath = window.location.pathname
-        const publicRoutes = ['/prenotazione-online', '/prenotazione']
+        const publicRoutes = ['/', '/home', '/prenotazione-online', '/prenotazione']
         const isPublicRoute = publicRoutes.some(route => currentPath.startsWith(route))
         
         // Non fare redirect automatico per rotte pubbliche o pagina di login

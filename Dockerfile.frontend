@@ -6,7 +6,7 @@ WORKDIR /app
 COPY ./package*.json ./
 
 # Install dependencies
-RUN npm install --no-optional --legacy-peer-deps --production=false
+RUN npm install --no-optional --force --production=false
 
 # Copy source code
 COPY . .

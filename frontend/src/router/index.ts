@@ -41,10 +41,17 @@ const Impostazioni = () => import('@/views/utenti/Impostazioni.vue')
 const PrenotazioneOnline = () => import('@/views/prenotazione/PrenotazioneOnline.vue')
 const ConfermaPrenotazione = () => import('@/views/prenotazione/ConfermaPrenotazione.vue')
 const CancellaPrenotazione = () => import('@/views/prenotazione/CancellaPrenotazione.vue')
+const LandingPage = () => import('@/views/LandingPage.vue')
 
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
+    name: 'Home', 
+    component: LandingPage,
+    meta: { public: true }
+  },
+  {
+    path: '/dashboard',
     name: 'Dashboard',
     component: Dashboard,
     meta: { requiresAuth: true }
@@ -265,7 +272,13 @@ const routes: Array<RouteRecordRaw> = [
     component: Impostazioni,
     meta: { requiresAuth: true }
   },
-  // Routes pubbliche per prenotazione online
+  // Routes pubbliche
+  {
+    path: '/home',
+    name: 'HomeRoute',
+    component: LandingPage,
+    meta: { public: true }
+  },
   {
     path: '/prenotazione-online',
     name: 'PrenotazioneOnline',
@@ -297,35 +310,44 @@ const router = createRouter({
 })
 
 // Navigation guard
-router.beforeEach((to, from, next) => {
+router.beforeEach(async (to, from, next) => {
   const authStore = useAuthStore()
   
-  // Consenti accesso alle routes pubbliche senza autenticazione
-  if (to.meta.public) {
+  // Route pubbliche - sempre permesse
+  if (to.meta?.public) {
     next()
     return
   }
   
-  // Verifica se l'utente è autenticato
-  if (to.meta.requiresAuth && !authStore.isLoggedIn) {
-    // Non aggiungere il redirect se si sta andando alla homepage
-    if (to.path === '/') {
-      next({ name: 'Login' })
-    } else {
-      next({ name: 'Login', query: { redirect: to.fullPath } })
-    }
-  } 
-  // Verifica se la rotta è riservata agli amministratori
-  else if (to.meta.requiresAdmin && !authStore.isAdmin) {
-    next({ name: 'Dashboard' })
-  }
-  // Redirect alla dashboard se un utente già autenticato prova ad accedere alla login
-  else if (to.meta.guest && authStore.isLoggedIn) {
-    next({ name: 'Dashboard' })
-  }
-  else {
+  // Route che non richiedono autenticazione
+  if (!to.meta?.requiresAuth) {
     next()
+    return
   }
+  
+  // Route protette - controlla autenticazione
+  if (!authStore.isInitialized) {
+    await authStore.checkAuth()
+  }
+  
+  if (!authStore.isLoggedIn) {
+    next({ name: 'Home', query: { redirect: to.fullPath } })
+    return
+  }
+  
+  // Controlla permessi admin
+  if (to.meta.requiresAdmin && !authStore.isAdmin) {
+    next({ name: 'Dashboard' })
+    return
+  }
+  
+  // Redirect route guest se già loggato
+  if (to.meta.guest && authStore.isLoggedIn) {
+    next({ name: 'Dashboard' })
+    return
+  }
+  
+  next()
 })
 
 export default router

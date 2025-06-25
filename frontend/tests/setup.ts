@@ -1,25 +1,24 @@
 import { config } from '@vue/test-utils'
 import { createTestingPinia } from '@pinia/testing'
-import { vi } from 'vitest'
 
 // Mock global objects
-global.ResizeObserver = vi.fn().mockImplementation(() => ({
-  observe: vi.fn(),
-  unobserve: vi.fn(),
-  disconnect: vi.fn(),
+global.ResizeObserver = jest.fn().mockImplementation(() => ({
+  observe: jest.fn(),
+  unobserve: jest.fn(),
+  disconnect: jest.fn(),
 }))
 
 // Global test configuration
-config.global.plugins = [createTestingPinia({ createSpy: vi.fn })]
+config.global.plugins = [createTestingPinia({ createSpy: jest.fn })]
 
 // Mock router
-vi.mock('vue-router', () => ({
+jest.mock('vue-router', () => ({
   useRouter: () => ({
-    push: vi.fn(),
-    replace: vi.fn(),
-    go: vi.fn(),
-    back: vi.fn(),
-    forward: vi.fn(),
+    push: jest.fn(),
+    replace: jest.fn(),
+    go: jest.fn(),
+    back: jest.fn(),
+    forward: jest.fn(),
   }),
   useRoute: () => ({
     params: {},
@@ -29,17 +28,17 @@ vi.mock('vue-router', () => ({
 }))
 
 // Mock axios
-vi.mock('axios', () => ({
+jest.mock('axios', () => ({
   default: {
-    get: vi.fn(),
-    post: vi.fn(),
-    put: vi.fn(),
-    delete: vi.fn(),
-    create: vi.fn(() => ({
-      get: vi.fn(),
-      post: vi.fn(),
-      put: vi.fn(),
-      delete: vi.fn(),
+    get: jest.fn(),
+    post: jest.fn(),
+    put: jest.fn(),
+    delete: jest.fn(),
+    create: jest.fn(() => ({
+      get: jest.fn(),
+      post: jest.fn(),
+      put: jest.fn(),
+      delete: jest.fn(),
     })),
   },
 }))

@@ -5,7 +5,7 @@ services:
   frontend-test:
     build:
       context: ./frontend
-      dockerfile: Dockerfile.frontend
+      dockerfile: ../Dockerfile.frontend
     environment:
       - NODE_ENV=test
       - VUE_APP_API_URL=http://backend-test:3000/api
@@ -13,7 +13,7 @@ services:
       - ./frontend:/app
       - /app/node_modules
     command: >
-      sh -c "npm ci && 
+      sh -c "npm install --force && 
              npm run test:unit &&
              npm run test:e2e:headless"
     depends_on:
@@ -23,7 +23,7 @@ services:
   backend-test:
     build:
       context: ./backend
-      dockerfile: Dockerfile.backend
+      dockerfile: ../Dockerfile.backend
     environment:
       - NODE_ENV=test
       - MONGODB_URI=mongodb://mongodb-test:27017/estetica_crm_test
@@ -33,7 +33,7 @@ services:
       - ./backend:/app
       - /app/node_modules
     command: >
-      sh -c "npm ci &&
+      sh -c "npm install --force &&
              npm start"
     depends_on:
       - mongodb-test

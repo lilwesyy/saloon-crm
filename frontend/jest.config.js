@@ -4,10 +4,6 @@ module.exports = {
     '**/tests/unit/**/*.spec.[jt]s?(x)',
     '**/__tests__/*.[jt]s?(x)'
   ],
-  transform: {
-    '^.+\\.vue$': '@vue/vue3-jest',
-    '^.+\\.(ts|tsx)$': 'ts-jest'
-  },
   testEnvironment: 'jsdom',
   moduleFileExtensions: [
     'js',
@@ -15,7 +11,7 @@ module.exports = {
     'json',
     'vue'
   ],
-  moduleNameMapping: {
+  moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1'
   },
   setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],

@@ -10,9 +10,17 @@ jest.mock('@/router', () => ({
 
 // Mock the auth service
 jest.mock('@/services/auth.service', () => ({
-  login: jest.fn(),
-  getCurrentUser: jest.fn()
+  default: {
+    login: jest.fn(),
+    getCurrentUser: jest.fn(),
+    register: jest.fn(),
+    updatePassword: jest.fn(),
+    requestPasswordReset: jest.fn(),
+    resetPassword: jest.fn()
+  }
 }))
+
+const mockedAuthService = AuthService as jest.Mocked<typeof AuthService>
 
 // Mock localStorage
 const localStorageMock = {
@@ -42,11 +50,11 @@ describe('Auth Store', () => {
   describe('login', () => {
     it('should set user data and token when login succeeds', async () => {
       const mockUser = {
-        _id: '123',
+        id: '123',
         nome: 'Test',
         cognome: 'User',
         email: 'test@example.com',
-        ruolo: 'admin'
+        ruolo: 'admin' as const
       }
       
       const mockResponse = {
@@ -55,12 +63,12 @@ describe('Auth Store', () => {
       }
       
       // Mock login success
-      AuthService.login.mockResolvedValue(mockResponse)
+      mockedAuthService.login.mockResolvedValue(mockResponse)
       
       const store = useAuthStore()
       const result = await store.login('test@example.com', 'password')
       
-      expect(AuthService.login).toHaveBeenCalledWith('test@example.com', 'password')
+      expect(mockedAuthService.login).toHaveBeenCalledWith('test@example.com', 'password')
       expect(store.currentUser).toEqual(mockUser)
       expect(store.token).toBe('test-token')
       expect(store.loading).toBe(false)
@@ -74,7 +82,7 @@ describe('Auth Store', () => {
     it('should set error and clear user data when login fails', async () => {
       // Mock login error
       const errorMsg = 'Invalid credentials'
-      AuthService.login.mockRejectedValue(new Error(errorMsg))
+      mockedAuthService.login.mockRejectedValue(new Error(errorMsg))
       
       const store = useAuthStore()
       const result = await store.login('wrong@example.com', 'wrongpass')
@@ -136,16 +144,16 @@ describe('Auth Store', () => {
       expect(store.token).toBe('saved-token')
       expect(store.currentUser).toEqual(mockUser)
       expect(result).toBe(true)
-      expect(AuthService.getCurrentUser).not.toHaveBeenCalled() // Should not call API if user exists in localStorage
+      expect(mockedAuthService.getCurrentUser).not.toHaveBeenCalled() // Should not call API if user exists in localStorage
     })
 
     it('should fetch user from API if only token exists', async () => {
       const mockUser = {
-        _id: '123',
+        id: '123',
         nome: 'Test',
         cognome: 'User',
         email: 'test@example.com',
-        ruolo: 'admin'
+        ruolo: 'admin' as const
       }
       
       // Mock localStorage having a token but no user
@@ -155,7 +163,7 @@ describe('Auth Store', () => {
       })
       
       // Mock user service response
-      AuthService.getCurrentUser.mockResolvedValue(mockUser)
+      mockedAuthService.getCurrentUser.mockResolvedValue(mockUser)
       
       const store = useAuthStore()
       const result = await store.checkAuth()
@@ -164,7 +172,7 @@ describe('Auth Store', () => {
       expect(localStorageMock.getItem).toHaveBeenCalledWith('user')
       expect(store.token).toBe('saved-token')
       expect(store.currentUser).toEqual(mockUser)
-      expect(AuthService.getCurrentUser).toHaveBeenCalled()
+      expect(mockedAuthService.getCurrentUser).toHaveBeenCalled()
       expect(localStorageMock.setItem).toHaveBeenCalledWith('user', JSON.stringify(mockUser))
       expect(result).toBe(true)
     })
@@ -180,7 +188,7 @@ describe('Auth Store', () => {
       expect(store.token).toBeNull()
       expect(store.currentUser).toBeNull()
       expect(result).toBe(false)
-      expect(AuthService.getCurrentUser).not.toHaveBeenCalled()
+      expect(mockedAuthService.getCurrentUser).not.toHaveBeenCalled()
     })
 
     it('should return false and clear data if API call fails', async () => {
@@ -191,7 +199,7 @@ describe('Auth Store', () => {
       })
       
       // Mock user service failure
-      AuthService.getCurrentUser.mockRejectedValue(new Error('Invalid token'))
+      mockedAuthService.getCurrentUser.mockRejectedValue(new Error('Invalid token'))
       
       const store = useAuthStore()
       const result = await store.checkAuth()

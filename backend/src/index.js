@@ -18,7 +18,19 @@ mongoose
     useNewUrlParser: true,
     useUnifiedTopology: true
   })
-  .then(() => console.log('Connessione a MongoDB stabilita'))
+  .then(async () => {
+    console.log('Connessione a MongoDB stabilita');
+    
+    // Auto-inizializzazione del database al primo avvio
+    if (process.env.NODE_ENV !== 'test') {
+      try {
+        const initDb = require('../scripts/init-db');
+        await initDb(false); // Non disconnettere, mantieni la connessione attiva
+      } catch (error) {
+        console.warn('⚠️  Inizializzazione database saltata:', error.message);
+      }
+    }
+  })
   .catch((err) => console.error('Errore di connessione a MongoDB:', err));
 
 // Avvio del server
